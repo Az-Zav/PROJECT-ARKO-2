@@ -57,22 +57,22 @@ public class AdminSidebar extends JPanel {
         navPanel.setOpaque(false);
         navPanel.setLayout(new BoxLayout(navPanel, BoxLayout.Y_AXIS));
 
-        btnVessels  = createButton("Manage Vessels",  loadIcon("/com/Icons/vessel.png"),  () -> {
+        btnVessels  = createButton("Manage Vessels",  loadIcon("/com/resources/Icons/vessel.png"),  () -> {
             cardLayout.show(cardPanel, "VESSELS");
             setActive(btnVessels);
         });
 
-        btnUsers    = createButton("Manage Users",    loadIcon("/com/Icons/profile.png"), () -> {
+        btnUsers    = createButton("Manage Users",    loadIcon("/com/resources/Icons/profile.png"), () -> {
             cardLayout.show(cardPanel, "USERS");
             setActive(btnUsers);
         });
 
-        btnStations = createButton("Manage Stations", loadIcon("/com/Icons/station.png"), () -> {
+        btnStations = createButton("Manage Stations", loadIcon("/com/resources/Icons/station.png"), () -> {
             cardLayout.show(cardPanel, "STATIONS");
             setActive(btnStations);
         });
 
-        btnReports  = createButton("View Reports",    loadIcon("/com/Icons/report.png"),  () -> {
+        btnReports  = createButton("View Reports",    loadIcon("/com/resources/Icons/report.png"),  () -> {
             cardLayout.show(cardPanel, "REPORTS");
             setActive(btnReports);
         });

@@ -250,6 +250,7 @@ public class StationDAO {
         s.setStationID(rs.getInt("StationID"));
         s.setStationName(rs.getString("StationName"));
         s.setStationCode(rs.getString("StationCode"));
+        s.setOperationalStatus(rs.getString("OperationalStatus"));
         return s;
     }
 }

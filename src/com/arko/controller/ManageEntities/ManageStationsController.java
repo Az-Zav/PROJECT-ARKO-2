@@ -1,9 +1,9 @@
 package com.arko.controller.ManageEntities;
 
-import com.arko.model.DAO.VesselDAO;
-import com.arko.model.POJO.Vessel;
-import com.arko.view.AdminDashboard.ManageEntities.ManageVesselsPanel;
-import com.arko.view.AdminDashboard.ManageEntities.VesselFormDialog;
+import com.arko.model.DAO.StationDAO;
+import com.arko.model.POJO.Station;
+import com.arko.view.AdminDashboard.ManageEntities.ManageStationsPanel;
+import com.arko.view.AdminDashboard.ManageEntities.StationFormDialog;
 
 import javax.swing.*;
 import javax.swing.table.TableCellEditor;
@@ -11,21 +11,21 @@ import javax.swing.table.TableCellRenderer;
 import java.awt.*;
 import java.util.List;
 
-public class ManageVesselsController {
+public class ManageStationsController {
 
-    private final ManageVesselsPanel panel;
-    private final VesselDAO vesselDAO;
+    private final ManageStationsPanel panel;
+    private final StationDAO stationDAO;
 
-    public ManageVesselsController(ManageVesselsPanel panel) {
-        this.panel     = panel;
-        this.vesselDAO = new VesselDAO();
+    public ManageStationsController(ManageStationsPanel panel) {
+        this.panel      = panel;
+        this.stationDAO = new StationDAO();
 
-        // 1. Setup the Actions Column (index 4: VesselID, Name, MaxCapacity, Status, Actions)
+        // 1. Setup the Actions Column (index 4: StationID, Name, Code, Status, Actions)
         panel.table.getColumnModel().getColumn(4).setCellRenderer(new ActionCellRenderer());
         panel.table.getColumnModel().getColumn(4).setCellEditor(new ActionCellEditor());
 
-        // 2. Bind the "Add Vessel" Button
-        panel.btnAdd.addActionListener(e -> handleAddVessel());
+        // 2. Bind the "Add Station" Button
+        panel.btnAdd.addActionListener(e -> handleAddStation());
 
         // 3. Initial Data Load
         refreshTable();
@@ -33,99 +33,98 @@ public class ManageVesselsController {
 
     public void refreshTable() {
         panel.tableModel.setRowCount(0);
-        List<Vessel> vessels = vesselDAO.getAllVessels();
+        List<Station> stations = stationDAO.getAllStations();
 
-        for (Vessel v : vessels) {
+        for (Station s : stations) {
             panel.tableModel.addRow(new Object[]{
-                    v.getVesselID(),
-                    v.getVesselName(),
-                    v.getMaxCapacity(),
-                    v.getVesselStatus(),
-                    v   // Vessel POJO stored in Actions column for editor access
+                    s.getStationID(),
+                    s.getStationName(),
+                    s.getStationCode(),
+                    s.getOperationalStatus(),
+                    s   // Station POJO stored in Actions column for editor access
             });
         }
     }
 
-    private void handleAddVessel() {
+    private void handleAddStation() {
         Window parentWindow = SwingUtilities.getWindowAncestor(panel);
-        VesselFormDialog dialog = new VesselFormDialog(parentWindow, null);
+        StationFormDialog dialog = new StationFormDialog(parentWindow, null);
         dialog.setVisible(true);
 
         if (dialog.isSaved()) {
-            Vessel newVessel = extractVesselFromDialog(dialog, new Vessel());
+            if (!isCodeValid(dialog)) return;
 
-            if (!isCapacityValid(dialog)) return;
+            Station newStation = extractStationFromDialog(dialog, new Station());
 
-            if (vesselDAO.createVessel(newVessel)) {
+            if (stationDAO.createStation(newStation)) {
                 refreshTable();
                 JOptionPane.showMessageDialog(panel,
-                        "Vessel added successfully.",
+                        "Station added successfully.",
                         "Success", JOptionPane.INFORMATION_MESSAGE);
             } else {
                 JOptionPane.showMessageDialog(panel,
-                        "Failed to save vessel. Please try again.",
+                        "Failed to save station. Code may already exist.",
                         "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
     }
 
-    private void handleUpdateVessel(Vessel existingVessel) {
+    private void handleUpdateStation(Station existingStation) {
         Window parentWindow = SwingUtilities.getWindowAncestor(panel);
-        VesselFormDialog dialog = new VesselFormDialog(parentWindow, existingVessel);
+        StationFormDialog dialog = new StationFormDialog(parentWindow, existingStation);
         dialog.setVisible(true);
 
         if (dialog.isSaved()) {
-            if (!isCapacityValid(dialog)) return;
+            if (!isCodeValid(dialog)) return;
 
-            Vessel updatedVessel = extractVesselFromDialog(dialog, existingVessel);
+            Station updatedStation = extractStationFromDialog(dialog, existingStation);
 
-            if (vesselDAO.updateVessel(updatedVessel)) {
+            if (stationDAO.updateStation(updatedStation)) {
                 refreshTable();
             } else {
                 JOptionPane.showMessageDialog(panel,
-                        "Failed to update vessel.",
+                        "Failed to update station.",
                         "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
     }
 
-    private void handleDeleteVessel(Vessel v) {
+    private void handleDeleteStation(Station s) {
         int confirm = JOptionPane.showConfirmDialog(panel,
-                "Are you sure you want to delete vessel \"" + v.getVesselName() + "\"?",
+                "Are you sure you want to delete station \"" + s.getStationName() + "\"?\n" +
+                        "This may affect existing trips assigned to this station.",
                 "Confirm Deletion", JOptionPane.YES_NO_OPTION);
 
         if (confirm == JOptionPane.YES_OPTION) {
-            if (vesselDAO.deleteVessel(v.getVesselID())) {
+            if (stationDAO.deleteStation(s.getStationID())) {
                 refreshTable();
             } else {
                 JOptionPane.showMessageDialog(panel,
-                        "Failed to delete vessel.",
+                        "Failed to delete station. It may still be referenced by existing trips or staff.",
                         "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
     }
 
     /**
-     * Validates that Max Capacity is a positive integer.
+     * Validates that the station code is not blank and is within a reasonable length (3-5 chars).
      */
-    private boolean isCapacityValid(VesselFormDialog dialog) {
-        try {
-            int capacity = Integer.parseInt(dialog.txtMaxCapacity.getText().trim());
-            if (capacity <= 0) throw new NumberFormatException();
-            return true;
-        } catch (NumberFormatException e) {
+    private boolean isCodeValid(StationFormDialog dialog) {
+        String code = dialog.txtCode.getText().trim();
+        if (code.isBlank() || code.length() > 5) {
             JOptionPane.showMessageDialog(panel,
-                    "Max Capacity must be a positive whole number.",
+                    "Station code must be between 1 and 5 characters.",
                     "Validation Error", JOptionPane.WARNING_MESSAGE);
             return false;
         }
+        return true;
     }
 
-    private Vessel extractVesselFromDialog(VesselFormDialog dialog, Vessel vessel) {
-        vessel.setVesselName(dialog.txtName.getText().trim());
-        vessel.setMaxCapacity(Integer.parseInt(dialog.txtMaxCapacity.getText().trim()));
-        vessel.setVesselStatus((String) dialog.cbStatus.getSelectedItem());
-        return vessel;
+    private Station extractStationFromDialog(StationFormDialog dialog, Station station) {
+        station.setStationName(dialog.txtName.getText().trim());
+        station.setStationCode(dialog.txtCode.getText().trim().toUpperCase());
+        station.setOperationalStatus((String) dialog.cbStatus.getSelectedItem());
+        return station;
     }
 
     // ── INNER CLASSES FOR CUSTOM TABLE BUTTONS ──────────────────────
@@ -164,17 +163,17 @@ public class ManageVesselsController {
         private final JPanel   container = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 2));
         private final JButton  btnEdit   = new JButton("✎");
         private final JButton  btnDelete = new JButton("🗑");
-        private Vessel currentVessel;
+        private Station currentStation;
 
         public ActionCellEditor() {
             container.setOpaque(true);
             btnEdit.addActionListener(e -> {
                 stopCellEditing();
-                handleUpdateVessel(currentVessel);
+                handleUpdateStation(currentStation);
             });
             btnDelete.addActionListener(e -> {
                 stopCellEditing();
-                handleDeleteVessel(currentVessel);
+                handleDeleteStation(currentStation);
             });
             container.add(btnEdit);
             container.add(btnDelete);
@@ -183,14 +182,14 @@ public class ManageVesselsController {
         @Override
         public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected,
                                                      int row, int column) {
-            currentVessel = (Vessel) value;
+            currentStation = (Station) value;
             container.setBackground(table.getSelectionBackground());
             return container;
         }
 
         @Override
         public Object getCellEditorValue() {
-            return currentVessel;
+            return currentStation;
         }
     }
 }
