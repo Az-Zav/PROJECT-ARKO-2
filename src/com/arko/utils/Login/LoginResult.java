@@ -27,6 +27,7 @@ public class LoginResult {
     private boolean mustChangePassword; // true → force ChangePassword screen before dashboard
     private boolean active;             // mirrors Staff.IsActive column
     private boolean twoFactorEnabled;   // true when Google Authenticator is required
+    private long lockRemainingSeconds;
 
     // ── Getters & Setters ────────────────────────────────────
     // (No logic — just get/set pairs)
@@ -51,4 +52,7 @@ public class LoginResult {
 
     public String getErrorMessage() { return errorMessage; }
     public void setErrorMessage(String errorMessage) { this.errorMessage = errorMessage; }
+
+    public long getLockRemainingSeconds() { return lockRemainingSeconds; }
+    public void setLockRemainingSeconds(long seconds) { this.lockRemainingSeconds = seconds; }
 }

@@ -26,9 +26,13 @@ public class AuthController {
 
         LocalDateTime lockedUntil = LOCKED_USERS.get(normalizedUsername);
         if (lockedUntil != null) {
-            if (LocalDateTime.now().isBefore(lockedUntil)) {
+
+            long secondsLeft = java.time.Duration.between(LocalDateTime.now(), lockedUntil).getSeconds();
+
+            if (secondsLeft > 0) {
                 loginResult.setValid(false);
-                loginResult.setErrorMessage("Your account is temporarily locked. Please try again later.");
+                loginResult.setLockRemainingSeconds(secondsLeft); // Pass the duration
+                loginResult.setErrorMessage("Your account is temporarily locked.");
                 return loginResult;
             }
             LOCKED_USERS.remove(normalizedUsername);
