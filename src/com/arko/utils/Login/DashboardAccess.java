@@ -14,10 +14,17 @@ public class DashboardAccess {
                 new AdminDashboard(session).setVisible(true);
             }
 
-            /*else {
+            else if (session.isStaff()) {
                 new OperationalDashboard(session).setVisible(true);
             }
-             */
+            else {
+                // Handle other roles or show an "Access Denied" message
+                JOptionPane.showMessageDialog(caller,
+                        "Your role (" + session.getRole() + ") does not have a designated dashboard.",
+                        "Access Denied", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
 
 
             Window window = SwingUtilities.getWindowAncestor(caller);

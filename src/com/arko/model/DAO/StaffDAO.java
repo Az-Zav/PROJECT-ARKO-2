@@ -128,8 +128,10 @@ public class StaffDAO {
 
     // ── Called by AuthController.verifyCredentials() ──────────────
     public Staff findByUsername(String username) throws SQLException {
-        String sql = "SELECT StaffID, Username, Password, FirstName, LastName, Role, Email " +
-                "FROM Staff WHERE Username = ? LIMIT 1";
+        String sql = "SELECT s.*, st.StationCode " +
+                "FROM Staff s " +
+                "LEFT JOIN station st ON s.StationID = st.StationID " +
+                "WHERE s.Username = ? LIMIT 1";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -147,6 +149,8 @@ public class StaffDAO {
                 staff.setLastName(rs.getString("LastName"));
                 staff.setRole(rs.getString("Role"));
                 staff.setEmail(rs.getString("Email"));
+                staff.setStationID(rs.getInt("StationID"));
+                staff.setStationCode(rs.getString("StationCode"));
                 return staff;
             }
         }
