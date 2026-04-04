@@ -36,7 +36,7 @@ public class AdminDashboard extends JFrame {
         cardPanel.add(new JPanel(), "REPORTS");
 
         // 4. Sidebar setup
-        AdminSidebar sidebar = new AdminSidebar(session, cardLayout, cardPanel);
+        AdminSidebar sidebar = new AdminSidebar(session, cardLayout, cardPanel, this);
 
         add(sidebar, BorderLayout.WEST);
         add(cardPanel, BorderLayout.CENTER);

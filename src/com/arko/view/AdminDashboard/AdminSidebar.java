@@ -1,6 +1,9 @@
 package com.arko.view.AdminDashboard;
 
 import com.arko.utils.Login.UserSession;
+import com.arko.utils.SessionManager;
+import com.arko.view.AdminDashboard.AdminDashboard;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
@@ -22,7 +25,7 @@ public class AdminSidebar extends JPanel {
 
     private JButton activeButton = null;
 
-    public AdminSidebar(UserSession session, CardLayout cardLayout, JPanel cardPanel) {
+    public AdminSidebar(UserSession session, CardLayout cardLayout, JPanel cardPanel, AdminDashboard adminDashboard) {
         setBackground(SIDEBAR_BG);
         setPreferredSize(new Dimension(250, 0)); // matches HamburgerSidebar width
         setLayout(new BorderLayout());
@@ -54,10 +57,25 @@ public class AdminSidebar extends JPanel {
         navPanel.setOpaque(false);
         navPanel.setLayout(new BoxLayout(navPanel, BoxLayout.Y_AXIS));
 
-        btnVessels  = createButton("Manage Vessels",  loadIcon("/com/Icons/vessel.png"),  () -> cardLayout.show(cardPanel, "VESSELS"));
-        btnUsers    = createButton("Manage Users",    loadIcon("/com/Icons/profile.png"), () -> cardLayout.show(cardPanel, "USERS"));
-        btnStations = createButton("Manage Stations", loadIcon("/com/Icons/station.png"), () -> cardLayout.show(cardPanel, "STATIONS"));
-        btnReports  = createButton("View Reports",    loadIcon("/com/Icons/report.png"),  () -> cardLayout.show(cardPanel, "REPORTS"));
+        btnVessels  = createButton("Manage Vessels",  loadIcon("/com/Icons/vessel.png"),  () -> {
+            cardLayout.show(cardPanel, "VESSELS");
+            setActive(btnVessels);
+        });
+
+        btnUsers    = createButton("Manage Users",    loadIcon("/com/Icons/profile.png"), () -> {
+            cardLayout.show(cardPanel, "USERS");
+            setActive(btnUsers);
+        });
+
+        btnStations = createButton("Manage Stations", loadIcon("/com/Icons/station.png"), () -> {
+            cardLayout.show(cardPanel, "STATIONS");
+            setActive(btnStations);
+        });
+
+        btnReports  = createButton("View Reports",    loadIcon("/com/Icons/report.png"),  () -> {
+            cardLayout.show(cardPanel, "REPORTS");
+            setActive(btnReports);
+        });
 
         navPanel.add(btnVessels);
         navPanel.add(btnUsers);
@@ -73,13 +91,24 @@ public class AdminSidebar extends JPanel {
         bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.Y_AXIS));
         bottomPanel.setBorder(new EmptyBorder(0, 0, 10, 0));
 
-        btnLogout = createButton("Logout", loadIcon("/com/Icons/logout.png"), () -> {});
+        btnLogout = createButton("Logout", loadIcon("/com/resources/Icons/logout.png"), () -> {
+            int confirm = JOptionPane.showConfirmDialog(
+                    adminDashboard,
+                    "Are you sure you want to logout?",
+                    "Logout",
+                    JOptionPane.YES_NO_OPTION
+            );
+
+            if (confirm == JOptionPane.YES_OPTION) {
+                SessionManager.getInstance().logout();
+                new com.arko.view.Login.LoginPanel();
+                SwingUtilities.getWindowAncestor(this).dispose();
+            }
+        });
         bottomPanel.add(btnLogout);
 
         add(bottomPanel, BorderLayout.SOUTH);
 
-        // Auto-select first item
-        setActive(btnVessels);
     }
 
     // Copied directly from HamburgerSidebar.createButton()

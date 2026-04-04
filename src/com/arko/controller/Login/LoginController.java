@@ -43,12 +43,10 @@ public class LoginController {
 
             // Check if account requires password change
             if (outcome.nextScreen == NextScreen.CHANGE_PASSWORD) {
-                // Open the ChangePasswordFrame instead of the dashboard
-                // We pass the authController and the loginResult (which contains the StaffID)
-                UI.ChangePasswordFrame changeFrame = new UI.ChangePasswordFrame(authController, outcome.loginResult);
+                com.arko.view.Login.ChangePasswordFrame changeFrame =
+                        new com.arko.view.Login.ChangePasswordFrame(
+                                authController, outcome.loginResult, this);
                 changeFrame.setVisible(true);
-
-                // Close the current login window
                 SwingUtilities.getWindowAncestor(btnLogin).dispose();
                 return;
             }
