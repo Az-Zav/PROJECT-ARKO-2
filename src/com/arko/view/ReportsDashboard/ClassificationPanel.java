@@ -4,6 +4,7 @@ import com.arko.view.ModernCard;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.labels.StandardPieSectionLabelGenerator;
 import org.jfree.chart.plot.RingPlot;
 import org.jfree.data.general.DefaultPieDataset;
 
@@ -64,6 +65,14 @@ public class ClassificationPanel extends ModernCard {
         ringPlot.setSeparatorsVisible(false); // clean look — no divider lines between slices
         ringPlot.setBackgroundPaint(Color.WHITE);
         ringPlot.setOutlineVisible(false);
+
+        // Adds the actual numeric count to the labels
+        // {0} = Key (e.g., Regular), {1} = Value (the count), {2} = Percentage
+        ringPlot.setLabelGenerator(new StandardPieSectionLabelGenerator("{0}: {1} ({2})"));
+
+        // Styling to make numbers readable
+        ringPlot.setLabelBackgroundPaint(Color.WHITE);
+        ringPlot.setLabelFont(new Font("Inter", Font.PLAIN, 11));
 
         // Step 4: Assign colors to the four classification slices.
         // Fixed colors so the legend is always consistent regardless of
