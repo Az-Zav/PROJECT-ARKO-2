@@ -13,7 +13,9 @@ public class EmailConfig {
     public static final String SMTP_STARTTLS = "true";
 
     // Email subject templates
+    // In EmailConfig.java
     public static final String SUBJECT_NEW_ACCOUNT = "[A.R.K.O] Your Account Has Been Created!";
+    public static final String SUBJECT_PASSWORD_RESET = "[A.R.K.O] Password Reset Request";
 
     // Utility class — prevent instantiation ─
     private EmailConfig() {}

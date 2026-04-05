@@ -74,10 +74,33 @@ public class ManageUsersController {
                 return; // Validation failed, error message already shown by the helper
             }
 
+            // 1. Generate a temporary password
+            String tempPassword = com.arko.utils.Login.PasswordUtil.generateTemporaryPassword();
+
+            // 2. Hash it and set it to the staff object before saving to DB
+            // Assuming your DAO/POJO handles the password field
+            newStaff.setPassword(com.arko.utils.Login.PasswordUtil.hashPassword(tempPassword));
+
             if (staffDAO.insertStaff(newStaff)) {
                 refreshTable();
+
+                // 3. Get the current Admin's name for the email footer/context
+                // Assuming SessionManager has a method to get the current staff's name
+                String adminName = SessionManager.getInstance().getCurrentStaff().getFullName();
+
+                // 4. Trigger the email (The call you asked for)
+                com.arko.utils.Email.EmailService.sendCredentialsEmail(
+                        newStaff.getEmail(),
+                        newStaff.getFullName(),
+                        newStaff.getUsername(),
+                        tempPassword,
+                        adminName,
+                        true, // Flag: isNewAccount = true
+                        null  // Callback (optional)
+                );
+
                 JOptionPane.showMessageDialog(panel,
-                        "User created successfully. They must use 'Forgot Password' to set their initial credentials.",
+                        "User created successfully. A temporary password has been sent to " + newStaff.getEmail() + ".",
                         "Success", JOptionPane.INFORMATION_MESSAGE);
             } else {
                 JOptionPane.showMessageDialog(panel, "Failed to save user. Username may already exist.", "Error", JOptionPane.ERROR_MESSAGE);

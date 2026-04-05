@@ -30,12 +30,13 @@ public class ForgotPasswordController {
             if (!updated)
                 return "Failed to reset password. Please try again.";
 
-            EmailService.sendNewAccountEmail(
+            EmailService.sendCredentialsEmail(
                     staff.getEmail(),
                     staff.getFullName(),
                     staff.getUsername(),
                     tempPassword,
                     "System",
+                    false,
                     null
             );
 

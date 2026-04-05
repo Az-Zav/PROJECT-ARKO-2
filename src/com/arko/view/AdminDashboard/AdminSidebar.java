@@ -58,6 +58,11 @@ public class AdminSidebar extends JPanel {
         navPanel.setOpaque(false);
         navPanel.setLayout(new BoxLayout(navPanel, BoxLayout.Y_AXIS));
 
+        btnAccount = createButton("Account Settings",    loadIcon("/com/resources/Icons/account.png"),  () -> {
+            cardLayout.show(cardPanel, "ACCOUNT_SETTINGS");
+            setActive(btnReports);
+        });
+
         btnVessels  = createButton("Manage Vessels",  loadIcon("/com/resources/Icons/vessel.png"),  () -> {
             cardLayout.show(cardPanel, "VESSELS");
             setActive(btnVessels);
@@ -78,16 +83,11 @@ public class AdminSidebar extends JPanel {
             setActive(btnReports);
         });
 
-        btnAccount = createButton("Account Settings",    loadIcon("/com/resources/Icons/report.png"),  () -> {
-            cardLayout.show(cardPanel, "REPORTS");
-            setActive(btnReports);
-        });
-
+        navPanel.add(btnAccount);
         navPanel.add(btnVessels);
         navPanel.add(btnUsers);
         navPanel.add(btnStations);
         navPanel.add(btnReports);
-        navPanel.add(btnAccount);
         navPanel.add(Box.createVerticalGlue());
 
         add(navPanel, BorderLayout.CENTER);

@@ -1,10 +1,16 @@
 package com.arko.view.AdminDashboard;
 
+import com.arko.controller.AccountSettings.AccountSettingsController;
+import com.arko.controller.ManageEntities.ManageStationsController;
+import com.arko.controller.ManageEntities.ManageUsersController;
+import com.arko.controller.ManageEntities.ManageVesselsController;
+import com.arko.controller.ReportsDashboard.ReportsController;
 import com.arko.utils.Login.UserSession;
 import com.arko.view.AdminDashboard.AccountSettings.AccountSettingsPanel;
 import com.arko.view.AdminDashboard.ManageEntities.ManageStationsPanel;
 import com.arko.view.AdminDashboard.ManageEntities.ManageUsersPanel;
 import com.arko.view.AdminDashboard.ManageEntities.ManageVesselsPanel;
+import com.arko.view.ReportsDashboard.ReportsDashboard;
 import com.arko.view.ReportsDashboard.ReportsDashboardPanel;
 
 import javax.swing.*;
@@ -27,24 +33,26 @@ public class AdminDashboard extends JFrame {
         cardPanel.setBackground(BG_COLOR);
 
         // 1. Create the Panel (The View)
-        com.arko.view.AdminDashboard.ManageEntities.ManageUsersPanel usersPanel = new ManageUsersPanel();
-        com.arko.view.AdminDashboard.ManageEntities.ManageVesselsPanel vesselsPanel = new ManageVesselsPanel();
-        com.arko.view.AdminDashboard.ManageEntities.ManageStationsPanel stationsPanel = new ManageStationsPanel();
-        com.arko.view.ReportsDashboard.ReportsDashboardPanel reportsPanel = new ReportsDashboardPanel(); // ADD
-        com.arko.view.AdminDashboard.AccountSettings.AccountSettingsPanel accountPanel = new AccountSettingsPanel();
+        AccountSettingsPanel accountPanel = new AccountSettingsPanel();
+        ManageUsersPanel usersPanel = new ManageUsersPanel();
+        ManageVesselsPanel vesselsPanel = new ManageVesselsPanel();
+        ManageStationsPanel stationsPanel = new ManageStationsPanel();
+        ReportsDashboardPanel reportsPanel = new ReportsDashboardPanel(); // ADD
+
 
         // 2. Initialize the Controller (The Wiring)
         // This automatically sets up the Table, Buttons, and DAO
-        new com.arko.controller.ManageEntities.ManageUsersController(usersPanel);
-        new com.arko.controller.ManageEntities.ManageVesselsController(vesselsPanel);
-        new com.arko.controller.ManageEntities.ManageStationsController(stationsPanel);
+        new AccountSettingsController(accountPanel);
+        new ManageUsersController(usersPanel);
+        new ManageVesselsController(vesselsPanel);
+        new ManageStationsController(stationsPanel);
 
         // 3. Register the REAL panel instead of a blank one
+        cardPanel.add(accountPanel, "ACCOUNT_SETTINGS");
         cardPanel.add(vesselsPanel, "VESSELS");
         cardPanel.add(usersPanel, "USERS");
         cardPanel.add(stationsPanel, "STATIONS");
         cardPanel.add(reportsPanel, "REPORTS");
-        cardPanel.add(accountPanel, "ACCOUNT SETTINGS");
 
 
         // 4. Sidebar setup

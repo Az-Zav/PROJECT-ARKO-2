@@ -36,12 +36,13 @@ public class EmailService {
     private EmailService() {}
 
 
-    public static void sendNewAccountEmail(
+    public static void sendCredentialsEmail(
             String recipientEmail,
             String recipientName,
             String username,
             String temporaryPassword,
             String createdByName,
+            boolean isNewAccount,
             EmailCallback callback) {
 
         EXECUTOR.submit(() -> {
@@ -53,7 +54,8 @@ public class EmailService {
                         recipientName,
                         username,
                         temporaryPassword,
-                        createdByName
+                        createdByName,
+                        isNewAccount
                 );
                 Transport.send(message);
 
@@ -123,7 +125,8 @@ public class EmailService {
             String recipientName,
             String username,
             String temporaryPassword,
-            String createdByName) throws MessagingException, UnsupportedEncodingException {
+            String createdByName,
+            boolean isNewAccount) throws MessagingException, UnsupportedEncodingException {
 
         MimeMessage msg = new MimeMessage(session);
 
@@ -141,7 +144,8 @@ public class EmailService {
         );
 
         // Subject + date
-        msg.setSubject(EmailConfig.SUBJECT_NEW_ACCOUNT, "UTF-8");
+        String subject = isNewAccount ? EmailConfig.SUBJECT_NEW_ACCOUNT : EmailConfig.SUBJECT_PASSWORD_RESET;
+        msg.setSubject(subject, "UTF-8");
         msg.setSentDate(new Date());
 
         // Body: multipart/alternative — plain text first, HTML preferred
@@ -149,14 +153,14 @@ public class EmailService {
 
         MimeBodyPart textPart = new MimeBodyPart();
         textPart.setText(
-                buildPlainText(recipientName, username, temporaryPassword),
+                buildPlainText(recipientName, username, temporaryPassword, isNewAccount),
                 "UTF-8"
         );
         multipart.addBodyPart(textPart);
 
         MimeBodyPart htmlPart = new MimeBodyPart();
         htmlPart.setContent(
-                buildHtmlBody(recipientName, username, temporaryPassword, createdByName),
+                buildHtmlBody(recipientName, username, temporaryPassword, createdByName, isNewAccount),
                 "text/html; charset=UTF-8"
         );
         multipart.addBodyPart(htmlPart);
@@ -166,31 +170,33 @@ public class EmailService {
     }
 
     private static String buildPlainText(
-            String name, String username, String tempPassword) {
+            String name, String username, String tempPassword, boolean isNewAccount) {
 
-        return "Welcome, " + name + "!\n\n"
-                + "Your account on the A.R.K.O System has been created and is now active.\n\n"
-                + "You will be required to change your password on first login.\n\n"
+        String intro = isNewAccount
+                ? "Your account on the A.R.K.O System has been created."
+                : "A password reset has been requested for your A.R.K.O account.";
+
+        return (isNewAccount ? "Welcome, " : "Hello, ") + name + "!\n\n"
+                + intro + "\n\n"
                 + "Your Login Credentials:\n"
-                + "Username          : " + username + "\n"
+                + "Username: " + username + "\n"
                 + "Temporary Password: " + tempPassword + "\n\n"
-                + "Do not share your credentials with anyone.\n\n"
-                + "-- A.R.K.O System\n"
-                + "Automated notification. Do not reply to this email.";
+                + "You are required to change this password on your next login.\n"
+                + "-- A.R.K.O System";
     }
 
     private static String buildHtmlBody(
             String name,
             String username,
             String tempPassword,
-            String createdByName) {
+            String createdByName, boolean isNewAccount) {
 
         return "<!DOCTYPE html>"
                 + "<html lang='en'>"
                 + "<head>"
                 + "<meta charset='UTF-8'>"
                 + "<meta name='viewport' content='width=device-width,initial-scale=1'>"
-                + "<title>A.R.K.O Account Created</title>"
+                + "<title>" + (isNewAccount ? "A.R.K.O Account Created" : "A.R.K.O Password Reset") + "</title>"
                 + "</head>"
                 + "<body style='"
                 +   "margin:0;"
@@ -206,7 +212,7 @@ public class EmailService {
                 +   "font-weight:700;"
                 +   "color:#111111;"
                 + "'>"
-                + "Welcome, " + escapeHtml(name) + "!"
+                + (isNewAccount ? "Welcome, " : "Hello, ") + escapeHtml(name) + "!"
                 + "</h2>"
 
                 // ── Status line ──
@@ -216,9 +222,9 @@ public class EmailService {
                 +   "line-height:1.6;"
                 +   "color:#333333;"
                 + "'>"
-                + "Your account on the <strong>A.R.K.O System</strong> has been created "
-                + "by <strong>" + escapeHtml(createdByName) + "</strong> "
-                + "and is now <strong>active</strong>."
+                + (isNewAccount
+                ? "Your account on the <strong>A.R.K.O System</strong> has been created by <strong>" + escapeHtml(createdByName) + "</strong> and is now <strong>active</strong>."
+                : "A password reset has been initiated for your account on the <strong>A.R.K.O System</strong>.")
                 + "</p>"
 
                 // ── Password change notice ──
@@ -229,7 +235,7 @@ public class EmailService {
                 +   "color:#333333;"
                 + "'>"
                 + "You will be required to <strong>change your password</strong> "
-                + "immediately after your first login."
+                + (isNewAccount ? "immediately after your first login." : "on your next login.")
                 + "</p>"
 
                 // ── Credentials heading ──
