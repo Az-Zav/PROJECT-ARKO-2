@@ -25,14 +25,11 @@ public class AccountSettingsController {
         this.staffDAO = new StaffDAO();
         this.authController = new AuthController();
 
-        // Wire the UI components upon initialization
         initController();
-
         populateStaffInformation();
     }
 
     private void initController() {
-        // Wire the Change Password button from the Security tab
         panel.getBtnChangePassword().addActionListener(e -> handleChangePasswordRequest());
     }
 
@@ -40,19 +37,12 @@ public class AccountSettingsController {
         if (SessionManager.getInstance().isLoggedIn()) {
             Staff staff = SessionManager.getInstance().getCurrentStaff();
 
-            /* ---- TEMPORARILY DISABLED UNTIL UI FIELDS ARE READY ----
             panel.lblStaffName.setText(staff.getFullName());
-            panel.lblStaffIDTag.setText("STAFF ID:");
             panel.lblStaffIDData.setText(String.valueOf(staff.getStaffID()));
-            panel.lblStaffEmailTag.setText("EMAIL:");
             panel.lblStaffEmailData.setText(staff.getEmail());
-            panel.lblStaffContactTag.setText("CONTACT NO.:");
             panel.lblStaffContactData.setText(staff.getContactNumber());
-            panel.lblStaffRoleTag.setText("ROLE:");
             panel.lblStaffRoleData.setText(staff.getRole());
-            panel.lblStaffStationTag.setText("STATION:");
             panel.lblStaffStationData.setText(staff.getStationCode());
-            */
         }
     }
 
@@ -62,13 +52,8 @@ public class AccountSettingsController {
         Window parentWindow = SwingUtilities.getWindowAncestor(panel);
         ConfirmPasswordDialog confirmDialog = new ConfirmPasswordDialog(parentWindow);
 
-        // Link the Verification Logic
         confirmDialog.btnVerify.addActionListener(e -> handleVerification(confirmDialog));
-
-        // Link the Forgot Password Logic
         confirmDialog.btnForgot.addActionListener(e -> handleForgotInDialog(confirmDialog));
-
-        // Standard Cancel
         confirmDialog.btnCancel.addActionListener(e -> confirmDialog.dispose());
 
         confirmDialog.setVisible(true);
@@ -83,12 +68,11 @@ public class AccountSettingsController {
             return;
         }
 
-        // Reuse AuthController logic to check credentials safely
         LoginResult result = authController.verifyCredentials(username, password);
 
         if (result.isValid()) {
-            dialog.dispose(); // Close verification
-            showChangePasswordDialog(); // Move to Step 2
+            dialog.dispose();
+            showChangePasswordDialog();
         } else {
             dialog.lblError.setText("Incorrect password. Please try again.");
             dialog.txtCurrentPassword.setText("");
@@ -117,15 +101,12 @@ public class AccountSettingsController {
         Window parentWindow = SwingUtilities.getWindowAncestor(panel);
         ChangePasswordDialog changeDialog = new ChangePasswordDialog(parentWindow);
 
-        // Cancel action
         changeDialog.btnCancel.addActionListener(e -> changeDialog.dispose());
 
-        // Save action
         changeDialog.btnSave.addActionListener(e -> {
-            String newPass = new String(changeDialog.txtNewPassword.getPassword());
+            String newPass     = new String(changeDialog.txtNewPassword.getPassword());
             String confirmPass = new String(changeDialog.txtConfirmPassword.getPassword());
 
-            // 1. Initial Empty/Match Checks
             if (newPass.isEmpty()) {
                 changeDialog.lblError.setText("New password cannot be empty.");
                 return;
@@ -135,15 +116,12 @@ public class AccountSettingsController {
                 return;
             }
 
-            // 2. Strict Complexity Rules (via PasswordUtil)
             String validationError = PasswordUtil.validate(newPass);
             if (validationError != null) {
-                // Using HTML so the error wraps nicely if it's long
                 changeDialog.lblError.setText("<html>" + validationError + "</html>");
                 return;
             }
 
-            // 3. Persist the New Password
             int staffId = SessionManager.getInstance().getCurrentStaffId();
             boolean updated = authController.updatePassword(staffId, newPass);
 

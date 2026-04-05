@@ -6,13 +6,13 @@ import com.arko.utils.SessionManager;
 import javax.swing.*;
 import java.awt.*;
 
-public class HamburgerSidebar extends JPanel {
+public class StaffSidebar extends JPanel {
 
     private JPanel menuPanel;
     private boolean visible = false;
     public JButton btnLogout;
 
-    public HamburgerSidebar(CardLayout cardLayout, JPanel cardPanel, UserSession session, OperationalDashboard operationalDashboard) {
+    public StaffSidebar(CardLayout cardLayout, JPanel cardPanel, UserSession session, OperationalDashboard operationalDashboard) {
         setLayout(new BorderLayout());
 
         // Sidebar container
@@ -47,7 +47,7 @@ public class HamburgerSidebar extends JPanel {
         }));
 
         menuPanel.add(createButton("Profile", loadIcon("/com/resources/Icons/profile.png"), () -> {
-            // insert
+            cardLayout.show(cardPanel, "PROFILE");
         }));
 
         menuPanel.add(createButton("Reports", loadIcon("/com/resources/Icons/report.png"), () -> {

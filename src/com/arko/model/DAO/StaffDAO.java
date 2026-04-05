@@ -147,6 +147,7 @@ public class StaffDAO {
                 staff.setPassword(rs.getString("Password"));
                 staff.setFirstName(rs.getString("FirstName"));
                 staff.setLastName(rs.getString("LastName"));
+                staff.setContactNumber(rs.getString("ContactNumber"));
                 staff.setRole(rs.getString("Role"));
                 staff.setEmail(rs.getString("Email"));
                 staff.setStationID(rs.getInt("StationID"));

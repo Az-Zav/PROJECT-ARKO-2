@@ -14,6 +14,7 @@ public class ReportsFilterPanel extends JPanel {
     public JButton           btnBack;
     public JButton           btnForward;
     public JButton           btnExport;
+    public JButton           btnToggleManifest;
 
     public ReportsFilterPanel() {
         setLayout(new BorderLayout(0, 8));
@@ -28,9 +29,11 @@ public class ReportsFilterPanel extends JPanel {
         lblTitle.setForeground(new Color(55, 30, 145));
 
         btnExport = new JButton("EXPORT PDF");
+        btnToggleManifest = new JButton("VIEW TRIP MANIFEST");
 
-        JPanel actionsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+        JPanel actionsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
         actionsPanel.setOpaque(false);
+        actionsPanel.add(btnToggleManifest);
         actionsPanel.add(btnExport);
 
         topRow.add(lblTitle,      BorderLayout.WEST);

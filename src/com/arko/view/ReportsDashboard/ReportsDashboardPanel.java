@@ -1,7 +1,9 @@
 package com.arko.view.ReportsDashboard;
 
 import com.arko.controller.ReportsDashboard.ReportsController;
+import com.arko.controller.ReportsDashboard.TripManifestController;
 import com.arko.utils.SessionManager;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
@@ -14,20 +16,15 @@ public class ReportsDashboardPanel extends JPanel {
         setLayout(new BorderLayout(0, 0));
         setBackground(CONTENT_BG);
 
+        // 1. Build all panels
         RidershipTimelinePanel timelinePanel       = new RidershipTimelinePanel();
         ClassificationPanel    classificationPanel = new ClassificationPanel();
-
         boolean isAdmin = SessionManager.getInstance().isCurrentStaffAdmin();
         StationAnalyticsPanel  analyticsPanel      = new StationAnalyticsPanel(isAdmin);
         ReportsFilterPanel     filterPanel         = new ReportsFilterPanel();
+        TripManifestPanel      tripManifestPanel   = new TripManifestPanel();
 
-        new ReportsController(
-                filterPanel,
-                timelinePanel,
-                classificationPanel,
-                analyticsPanel
-        );
-
+        // 2. Build the chart content area and populate it
         JPanel contentArea = new JPanel(new GridBagLayout());
         contentArea.setOpaque(false);
         contentArea.setBorder(new EmptyBorder(30, 40, 30, 40));
@@ -51,6 +48,20 @@ public class ReportsDashboardPanel extends JPanel {
         gbc.weightx = 1.0; gbc.weighty = 0.55;
         contentArea.add(analyticsPanel, gbc);
 
-        add(contentArea, BorderLayout.CENTER);
+        // 3. Wrap charts + manifest in an inner CardLayout
+        CardLayout innerCard = new CardLayout();
+        JPanel innerPanel    = new JPanel(innerCard);
+        innerPanel.setOpaque(false);
+        innerPanel.add(contentArea,       "CHARTS");
+        innerPanel.add(tripManifestPanel, "MANIFEST");
+
+        // 4. Wire controllers — contentArea is fully built before being handed off
+        TripManifestController tripManifestController = new TripManifestController(tripManifestPanel);
+        new ReportsController(
+                filterPanel, timelinePanel, classificationPanel,
+                analyticsPanel, tripManifestController, innerCard, innerPanel);
+
+        // 5. Add to this panel
+        add(innerPanel, BorderLayout.CENTER);
     }
 }

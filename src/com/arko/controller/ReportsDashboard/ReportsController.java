@@ -9,6 +9,8 @@ import com.arko.view.ReportsDashboard.ReportsFilterPanel;
 import com.arko.view.ReportsDashboard.RidershipTimelinePanel;
 import com.arko.view.ReportsDashboard.StationAnalyticsPanel;
 
+import javax.swing.*;
+import java.awt.*;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
@@ -30,11 +32,19 @@ public class ReportsController {
     // local field to check for admin role
     private final boolean isAdmin;
 
+    private final TripManifestController tripManifestController;
+    private final CardLayout innerCard;
+    private final JPanel innerPanel;
+    private boolean                      manifestActive = false;
+
     //constructor
     public ReportsController(ReportsFilterPanel filterPanel,
                              RidershipTimelinePanel timelinePanel,
                              ClassificationPanel classificationPanel,
-                             StationAnalyticsPanel analyticsPanel) {
+                             StationAnalyticsPanel analyticsPanel,
+                             TripManifestController tripManifestController,
+                             CardLayout innerCard,
+                             JPanel innerPanel) {
 
         this.filterPanel         = filterPanel;
         this.timelinePanel       = timelinePanel;
@@ -44,6 +54,11 @@ public class ReportsController {
         this.passengerDAO = new PassengerDAO();
         this.stationDAO   = new StationDAO();
         this.isAdmin      = SessionManager.getInstance().isCurrentStaffAdmin();
+
+        this.tripManifestController = tripManifestController;
+        this.innerCard              = innerCard;
+        this.innerPanel             = innerPanel;
+
 
         initFilterDefaults();
         initActionListeners();
@@ -155,6 +170,24 @@ public class ReportsController {
             // TODO: hook up ReportsPDFExporter in File 8
             javax.swing.JOptionPane.showMessageDialog(null,
                     "PDF Export coming soon.", "Export", javax.swing.JOptionPane.INFORMATION_MESSAGE);
+        });
+
+        //MANIFEST TOGGLE LISTENER
+        filterPanel.btnToggleManifest.addActionListener(e -> {
+            manifestActive = !manifestActive;
+            if (manifestActive) {
+                innerCard.show(innerPanel, "MANIFEST");
+                filterPanel.btnToggleManifest.setText("VIEW CHARTS");
+                // Sync manifest filter to current chart filter state, then load
+                tripManifestController.syncFromReportsFilter(
+                        SessionManager.getInstance().getReportsAnchorDate(),
+                        SessionManager.getInstance().getReportsPeriodType(),
+                        SessionManager.getInstance().getReportsStationId()
+                );
+            } else {
+                innerCard.show(innerPanel, "CHARTS");
+                filterPanel.btnToggleManifest.setText("VIEW TRIP MANIFEST");
+            }
         });
     }
 

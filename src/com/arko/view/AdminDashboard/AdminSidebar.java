@@ -2,7 +2,6 @@ package com.arko.view.AdminDashboard;
 
 import com.arko.utils.Login.UserSession;
 import com.arko.utils.SessionManager;
-import com.arko.view.AdminDashboard.AdminDashboard;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -12,10 +11,10 @@ import java.awt.event.MouseEvent;
 
 public class AdminSidebar extends JPanel {
 
-    private static final Color SIDEBAR_BG = new Color(76, 59, 148);   // matches HamburgerSidebar exactly
-    private static final Color ACTIVE_BG  = new Color(55, 42, 110);   // slightly darker for active state
+    private static final Color SIDEBAR_BG = new Color(76, 59, 148);
+    private static final Color ACTIVE_BG  = new Color(55, 42, 110);
     private static final Color TEXT_WHITE = Color.WHITE;
-    private static final Color TEXT_DIM   = new Color(200, 200, 210); // matches SideNavigationPanel
+    private static final Color TEXT_DIM   = new Color(200, 200, 210);
 
     public JButton btnVessels;
     public JButton btnStations;
@@ -28,10 +27,10 @@ public class AdminSidebar extends JPanel {
 
     public AdminSidebar(UserSession session, CardLayout cardLayout, JPanel cardPanel, AdminDashboard adminDashboard) {
         setBackground(SIDEBAR_BG);
-        setPreferredSize(new Dimension(250, 0)); // matches HamburgerSidebar width
+        setPreferredSize(new Dimension(250, 0));
         setLayout(new BorderLayout());
 
-        // --- TOP: Profile Section (matches HamburgerSidebar profilePanel) ---
+        // --- TOP: Profile Section ---
         JPanel profilePanel = new JPanel();
         profilePanel.setLayout(new BoxLayout(profilePanel, BoxLayout.Y_AXIS));
         profilePanel.setBackground(SIDEBAR_BG);
@@ -42,11 +41,11 @@ public class AdminSidebar extends JPanel {
 
         JLabel nameLabel = new JLabel(fullName);
         nameLabel.setForeground(TEXT_WHITE);
-        nameLabel.setFont(new Font("Inter", Font.BOLD, 18)); // matches HamburgerSidebar
+        nameLabel.setFont(new Font("Inter", Font.BOLD, 18));
 
         JLabel roleLabel = new JLabel(role);
         roleLabel.setForeground(TEXT_WHITE);
-        roleLabel.setFont(new Font("Inter", Font.PLAIN, 16)); // matches HamburgerSidebar
+        roleLabel.setFont(new Font("Inter", Font.PLAIN, 16));
 
         profilePanel.add(nameLabel);
         profilePanel.add(roleLabel);
@@ -58,17 +57,18 @@ public class AdminSidebar extends JPanel {
         navPanel.setOpaque(false);
         navPanel.setLayout(new BoxLayout(navPanel, BoxLayout.Y_AXIS));
 
-        btnAccount = createButton("Account Settings",    loadIcon("/com/resources/Icons/account.png"),  () -> {
+        // BUG FIX: was calling setActive(btnReports) — should be setActive(btnAccount)
+        btnAccount = createButton("Profile", loadIcon("/com/resources/Icons/account.png"), () -> {
             cardLayout.show(cardPanel, "ACCOUNT_SETTINGS");
-            setActive(btnReports);
+            setActive(btnAccount);
         });
 
-        btnVessels  = createButton("Manage Vessels",  loadIcon("/com/resources/Icons/vessel.png"),  () -> {
+        btnVessels = createButton("Manage Vessels", loadIcon("/com/resources/Icons/vessel.png"), () -> {
             cardLayout.show(cardPanel, "VESSELS");
             setActive(btnVessels);
         });
 
-        btnUsers    = createButton("Manage Users",    loadIcon("/com/resources/Icons/profile.png"), () -> {
+        btnUsers = createButton("Manage Users", loadIcon("/com/resources/Icons/profile.png"), () -> {
             cardLayout.show(cardPanel, "USERS");
             setActive(btnUsers);
         });
@@ -78,7 +78,7 @@ public class AdminSidebar extends JPanel {
             setActive(btnStations);
         });
 
-        btnReports  = createButton("View Reports",    loadIcon("/com/resources/Icons/report.png"),  () -> {
+        btnReports = createButton("View Reports", loadIcon("/com/resources/Icons/report.png"), () -> {
             cardLayout.show(cardPanel, "REPORTS");
             setActive(btnReports);
         });
@@ -92,7 +92,7 @@ public class AdminSidebar extends JPanel {
 
         add(navPanel, BorderLayout.CENTER);
 
-        // --- BOTTOM: Logout (matches HamburgerSidebar logout block) ---
+        // --- BOTTOM: Logout ---
         JPanel bottomPanel = new JPanel();
         bottomPanel.setOpaque(false);
         bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.Y_AXIS));
@@ -105,7 +105,6 @@ public class AdminSidebar extends JPanel {
                     "Logout",
                     JOptionPane.YES_NO_OPTION
             );
-
             if (confirm == JOptionPane.YES_OPTION) {
                 SessionManager.getInstance().logout();
                 new com.arko.view.Login.LoginPanel();
@@ -116,9 +115,12 @@ public class AdminSidebar extends JPanel {
 
         add(bottomPanel, BorderLayout.SOUTH);
 
+        // FIX: Mark the first visible card's button as active on startup.
+        // CardLayout shows the first-added card ("ACCOUNT_SETTINGS") by default,
+        // so btnAccount should be highlighted immediately.
+        setActive(btnAccount);
     }
 
-    // Copied directly from HamburgerSidebar.createButton()
     private JButton createButton(String text, ImageIcon icon, Runnable action) {
         JButton btn = new JButton(text, icon);
 
@@ -128,7 +130,7 @@ public class AdminSidebar extends JPanel {
         btn.setBackground(SIDEBAR_BG);
         btn.setForeground(TEXT_WHITE);
         btn.setFont(new Font("Inter", Font.PLAIN, 18));
-        btn.setFont(btn.getFont().deriveFont(16f)); // matches HamburgerSidebar exactly
+        btn.setFont(btn.getFont().deriveFont(16f));
         btn.setFocusPainted(false);
         btn.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 10));
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -141,7 +143,6 @@ public class AdminSidebar extends JPanel {
 
         btn.addActionListener(e -> action.run());
 
-        // Hover effect — only applied when not the active button
         btn.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent e) {
@@ -156,7 +157,6 @@ public class AdminSidebar extends JPanel {
         return btn;
     }
 
-    // Copied from HamburgerSidebar.loadIcon()
     private ImageIcon loadIcon(String path) {
         java.net.URL imgURL = getClass().getResource(path);
         if (imgURL != null) {
@@ -169,7 +169,6 @@ public class AdminSidebar extends JPanel {
         }
     }
 
-    // --- PUBLIC API FOR CONTROLLER ---
     public void setActive(JButton selected) {
         if (activeButton != null) {
             activeButton.setBackground(SIDEBAR_BG);

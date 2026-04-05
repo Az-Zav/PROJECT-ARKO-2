@@ -1,6 +1,7 @@
 package com.arko.model.DAO;
 
 import com.arko.model.POJO.Passenger;
+import com.arko.model.POJO.Trip;
 import com.arko.model.database.DBConnection;
 import com.arko.model.database.TransactionRunner;
 import com.arko.utils.OperationalDashboard.AppConstants;
@@ -538,4 +539,121 @@ public class PassengerDAO {
         combined.add(alightingRows);
         return combined;
     }
+
+    // ── TRIP MANIFEST QUERIES ─────────────────────────────────────────────────
+
+    /**
+     * Returns all trips whose DepartureTime falls within the date window.
+     * JOINs vessel for the name. stationId = -1 means all stations.
+     *
+     * Each Trip carries: tripID, tripDirection, tripStatus,
+     * departureTime, vesselName, and a passenger count.
+     */
+    public ArrayList<Trip> getTripsForDateRange(
+            LocalDate startDate, LocalDate endDate, int stationId) {
+
+        ArrayList<Trip> results = new ArrayList<>();
+
+        String sql;
+        if (stationId == -1) {
+            // Admin: all trips in the date window
+            sql = "SELECT t.TripID, t.TripDirection, t.TripStatus, " +
+                    "       t.DepartureTime, v.VesselName, " +
+                    "       COUNT(p.PassengerID) AS passengerCount " +
+                    "FROM trip t " +
+                    "JOIN vessel v ON t.VesselID = v.VesselID " +
+                    "LEFT JOIN passengers p ON p.TripID = t.TripID " +
+                    "WHERE DATE(t.DepartureTime) BETWEEN ? AND ? " +
+                    "GROUP BY t.TripID, t.TripDirection, t.TripStatus, " +
+                    "         t.DepartureTime, v.VesselName " +
+                    "ORDER BY t.DepartureTime ASC";
+        } else {
+            // Staff: only trips where their station was an origin OR destination
+            sql = "SELECT t.TripID, t.TripDirection, t.TripStatus, " +
+                    "       t.DepartureTime, v.VesselName, " +
+                    "       COUNT(p.PassengerID) AS passengerCount " +
+                    "FROM trip t " +
+                    "JOIN vessel v ON t.VesselID = v.VesselID " +
+                    "LEFT JOIN passengers p ON p.TripID = t.TripID " +
+                    "WHERE DATE(t.DepartureTime) BETWEEN ? AND ? " +
+                    "AND t.TripID IN ( " +
+                    "    SELECT DISTINCT TripID FROM passengers " +
+                    "    WHERE OriginStationID = ? OR DestinationStationID = ? " +
+                    ") " +
+                    "GROUP BY t.TripID, t.TripDirection, t.TripStatus, " +
+                    "         t.DepartureTime, v.VesselName " +
+                    "ORDER BY t.DepartureTime ASC";
+        }
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setDate(1, Date.valueOf(startDate));
+            ps.setDate(2, Date.valueOf(endDate));
+            if (stationId != -1) {
+                ps.setInt(3, stationId);
+                ps.setInt(4, stationId); // same value for OR condition
+            }
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Trip t = new Trip();
+                t.setTripID(rs.getInt("TripID"));
+                t.setTripDirection(rs.getString("TripDirection"));
+                t.setTripStatus(rs.getString("TripStatus"));
+                t.setDepartureTime(rs.getTimestamp("DepartureTime"));
+                t.setVesselName(rs.getString("VesselName"));
+                t.setCurrentLoad(rs.getInt("passengerCount"));
+                results.add(t);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return results;
+    }
+
+    /**
+     * Returns all passengers for a given trip for the detail table.
+     * Reuses the same mapping as getManifestForTrip() but also pulls
+     * Classification so the reports view can display it.
+     */
+    public List<Passenger> getPassengersForTrip(int tripId) {
+        List<Passenger> list = new ArrayList<>();
+
+        String sql = "SELECT p.PassengerID, p.BoardingCode, p.Classification, " +
+                "       p.PassengerStatus, p.PassengerDirection, " +
+                "       CONCAT(p.FirstName, ' ', p.MiddleInitial, '. ', p.LastName) AS FullName, " +
+                "       os.StationCode AS OriginCode, " +
+                "       ds.StationCode AS DestCode " +
+                "FROM passengers p " +
+                "JOIN station os ON p.OriginStationID      = os.StationID " +
+                "JOIN station ds ON p.DestinationStationID = ds.StationID " +
+                "WHERE p.TripID = ? " +
+                "ORDER BY p.RegistrationTimeStamp ASC";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, tripId);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Passenger p = new Passenger();
+                p.setPassengerID(rs.getInt("PassengerID"));
+                p.setBoardingCode(rs.getString("BoardingCode"));
+                p.setFullName(rs.getString("FullName"));
+                p.setClassification(rs.getString("Classification"));
+                p.setPassengerStatus(rs.getString("PassengerStatus"));
+                p.setPassengerDirection(rs.getString("PassengerDirection"));
+                p.setOriginCode(rs.getString("OriginCode"));
+                p.setDestinationCode(rs.getString("DestCode"));
+                list.add(p);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+
 }

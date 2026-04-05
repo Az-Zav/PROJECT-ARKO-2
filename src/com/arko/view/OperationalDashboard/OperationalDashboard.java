@@ -1,10 +1,12 @@
 package com.arko.view.OperationalDashboard;
 
+import com.arko.controller.AccountSettings.AccountSettingsController;
 import com.arko.controller.OperationalDashboard.*;
 import com.arko.model.POJO.Staff;
 import com.arko.utils.Login.UserSession;
 import com.arko.utils.OperationalDashboard.BoardingSession;
 import com.arko.utils.SessionManager;
+import com.arko.view.AdminDashboard.AccountSettings.AccountSettingsPanel;
 import com.arko.view.ReportsDashboard.ReportsDashboardPanel;
 
 import javax.swing.*;
@@ -19,7 +21,7 @@ public class OperationalDashboard extends JFrame {
     private final Color BG_COLOR    = new Color(240, 242, 245);
     private final Color HEADER_DARK = new Color(18, 24, 38);
 
-    private HamburgerSidebar sidebar;
+    private StaffSidebar sidebar;
     private CardLayout cardLayout;
     private JPanel cardPanel;
     private UserSession session;
@@ -39,7 +41,7 @@ public class OperationalDashboard extends JFrame {
         cardLayout = new CardLayout();
         cardPanel = new JPanel(cardLayout);
 
-        sidebar = new HamburgerSidebar(cardLayout, cardPanel, session, this);
+        sidebar = new StaffSidebar(cardLayout, cardPanel, session, this);
 
         // --- HEADER ---
         add(createHeader(), BorderLayout.NORTH);
@@ -136,8 +138,13 @@ public class OperationalDashboard extends JFrame {
         dashboardWrapper.setOpaque(false);
         dashboardWrapper.add(contentArea, BorderLayout.CENTER);
 
-        cardPanel.add(dashboardWrapper, "DASHBOARD");
-        cardPanel.add(new JPanel(), "PROFILE");
+        // Add reports and account settings panel
+
+        AccountSettingsPanel accountSettingsPanel = new AccountSettingsPanel();
+        new AccountSettingsController(accountSettingsPanel);
+
+        cardPanel.add(dashboardWrapper,      "DASHBOARD");
+        cardPanel.add(accountSettingsPanel,  "PROFILE");
         cardPanel.add(new ReportsDashboardPanel(), "REPORTS");
 
         // Main container (sidebar + content)

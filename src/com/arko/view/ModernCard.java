@@ -7,7 +7,7 @@ import java.awt.*;
 public class ModernCard extends JPanel {
 
     // THE SAFE ZONE: Subclasses will add their UI components HERE, not directly to 'this'
-    protected JPanel container;
+    public JPanel container;
 
     public ModernCard(String title) {
         setOpaque(false); // Essential so the rounded corners can be drawn smoothly
