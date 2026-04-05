@@ -22,6 +22,7 @@ public class AdminSidebar extends JPanel {
     public JButton btnUsers;
     public JButton btnReports;
     public JButton btnLogout;
+    public JButton btnAccount;
 
     private JButton activeButton = null;
 
@@ -77,10 +78,16 @@ public class AdminSidebar extends JPanel {
             setActive(btnReports);
         });
 
+        btnAccount = createButton("Account Settings",    loadIcon("/com/resources/Icons/report.png"),  () -> {
+            cardLayout.show(cardPanel, "REPORTS");
+            setActive(btnReports);
+        });
+
         navPanel.add(btnVessels);
         navPanel.add(btnUsers);
         navPanel.add(btnStations);
         navPanel.add(btnReports);
+        navPanel.add(btnAccount);
         navPanel.add(Box.createVerticalGlue());
 
         add(navPanel, BorderLayout.CENTER);

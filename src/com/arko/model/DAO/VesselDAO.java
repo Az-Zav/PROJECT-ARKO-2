@@ -2,7 +2,8 @@ package com.arko.model.DAO;
 
 import com.arko.model.POJO.Vessel;
 import com.arko.model.database.DBConnection;
-import com.arko.utils.OperationalDashboard.TripStatus;
+import com.arko.utils.OperationalDashboard.AppConstants;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -86,7 +87,7 @@ public class VesselDAO {
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setString(1, TripStatus.COMPLETED.name());
+            ps.setString(1, AppConstants.TripStatus.COMPLETED.name());
             ps.setInt(2, stationId);  // Exact match
             ps.setInt(3, stationId);  // UPSTREAM condition
             ps.setInt(4, stationId);  // DOWNSTREAM condition

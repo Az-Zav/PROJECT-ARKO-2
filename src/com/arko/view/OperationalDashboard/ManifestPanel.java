@@ -1,7 +1,7 @@
 package com.arko.view.OperationalDashboard;
 
 import com.arko.model.POJO.Passenger;
-import com.arko.utils.OperationalDashboard.PassengerStatus;
+import com.arko.utils.OperationalDashboard.AppConstants;
 import com.arko.utils.SessionManager;
 import com.arko.view.ModernCard;
 import com.arko.view.UIStyler;
@@ -39,7 +39,7 @@ public class ManifestPanel extends ModernCard {
                 Object val = getValueAt(row, 5);
                 if (!(val instanceof Passenger)) return false;
                 Passenger p = (Passenger) val;
-                boolean alreadyArrived = PassengerStatus.ARRIVED.name()
+                boolean alreadyArrived = AppConstants.PassengerStatus.ARRIVED.name()
                         .equalsIgnoreCase(p.getPassengerStatus());
                 boolean atDestination = p.getDestinationStationID()
                         == SessionManager.getInstance().getCurrentStationId();
@@ -98,7 +98,7 @@ public class ManifestPanel extends ModernCard {
             }
 
             Passenger p = (Passenger) value;
-            boolean alreadyArrived = PassengerStatus.ARRIVED.name()
+            boolean alreadyArrived = AppConstants.PassengerStatus.ARRIVED.name()
                     .equalsIgnoreCase(p.getPassengerStatus());
             boolean atDestination = p.getDestinationStationID()
                     == SessionManager.getInstance().getCurrentStationId();
@@ -143,7 +143,7 @@ public class ManifestPanel extends ModernCard {
                 // This prevents a double-decrement of vessel load if the editor
                 // is somehow triggered on an already-completed row.
                 if (currentPassenger == null) return;
-                if (PassengerStatus.ARRIVED.name().equalsIgnoreCase(
+                if (AppConstants.PassengerStatus.ARRIVED.name().equalsIgnoreCase(
                         currentPassenger.getPassengerStatus())) return;
 
                 if (arrivalCallback != null) {

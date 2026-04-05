@@ -2,8 +2,8 @@ package com.arko.model.DAO;
 
 import com.arko.model.POJO.Trip;
 import com.arko.model.database.DBConnection;
-import com.arko.utils.OperationalDashboard.PassengerStatus;
-import com.arko.utils.OperationalDashboard.TripStatus;
+import com.arko.utils.OperationalDashboard.AppConstants;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +22,7 @@ public class TripDAO {
              PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setInt(1, vesselId);
-            ps.setString(2, TripStatus.DOCKED.toDbString());
+            ps.setString(2, AppConstants.TripStatus.DOCKED.toDbString());
             ps.setInt(3, startStationId);
             ps.setString(4, direction);
             ps.executeUpdate();
@@ -47,7 +47,7 @@ public class TripDAO {
              PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setInt(1, vesselId);
-            ps.setString(2, TripStatus.DOCKED.toDbString());
+            ps.setString(2, AppConstants.TripStatus.DOCKED.toDbString());
             ps.setInt(3, terminusStationId);
             ps.setString(4, returnDirection);
             ps.executeUpdate();
@@ -69,7 +69,7 @@ public class TripDAO {
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setString(1, TripStatus.COMPLETED.toDbString());
+            ps.setString(1, AppConstants.TripStatus.COMPLETED.toDbString());
             ps.setInt(2, tripId);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -89,7 +89,7 @@ public class TripDAO {
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, tripId);
-            ps.setString(2, PassengerStatus.ARRIVED.name());
+            ps.setString(2, AppConstants.PassengerStatus.ARRIVED.name());
             ResultSet rs = ps.executeQuery();
             if (rs.next()) return rs.getInt(1) == 0;
         } catch (SQLException e) {
@@ -162,7 +162,7 @@ public class TripDAO {
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setString(1, TripStatus.COMPLETED.toDbString());
+            ps.setString(1, AppConstants.TripStatus.COMPLETED.toDbString());
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
@@ -173,7 +173,7 @@ public class TripDAO {
                 t.setTripID(rs.getInt("TripID"));
 
                 String status = rs.getString("TripStatus");
-                t.setTripStatus(status == null ? TripStatus.IDLE.name() : status);
+                t.setTripStatus(status == null ? AppConstants.TripStatus.IDLE.name() : status);
 
                 t.setTripDirection(rs.getString("TripDirection"));
                 t.setCurrentStationID(rs.getInt("CurrentStationID"));
@@ -201,7 +201,7 @@ public class TripDAO {
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setString(1, TripStatus.IN_TRANSIT.toDbString());
+            ps.setString(1, AppConstants.TripStatus.IN_TRANSIT.toDbString());
             ps.setInt(2, tripId);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {

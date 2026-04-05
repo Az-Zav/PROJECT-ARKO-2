@@ -3,7 +3,7 @@ package com.arko.model.DAO;
 import com.arko.model.POJO.Passenger;
 import com.arko.model.database.DBConnection;
 import com.arko.model.database.TransactionRunner;
-import com.arko.utils.OperationalDashboard.PassengerStatus;
+import com.arko.utils.OperationalDashboard.AppConstants;
 import com.arko.utils.SessionManager;
 import java.sql.*;
 import java.time.LocalDate;
@@ -52,7 +52,7 @@ public class PassengerDAO {
             ps.setInt(5, p.getAge());
             ps.setString(6, String.valueOf(p.getSex()));
             ps.setString(7, direction);
-            ps.setString(8, PassengerStatus.WAITING.name());
+            ps.setString(8, AppConstants.PassengerStatus.WAITING.name());
             ps.setString(9, p.getClassification());
             ps.setString(10, bCode);
             ps.setInt(11, originId);
@@ -67,7 +67,7 @@ public class PassengerDAO {
                         p.setPassengerID(rs.getInt(1));
                         p.setPassengerDirection(direction);
                         p.setBoardingCode(bCode);
-                        p.setPassengerStatus(PassengerStatus.WAITING.name());
+                        p.setPassengerStatus(AppConstants.PassengerStatus.WAITING.name());
                         return p; // outputs passenger object filled
                     }
                 }
@@ -131,7 +131,7 @@ public class PassengerDAO {
 
             ps.setInt(1, originId);
             ps.setString(2, direction);
-            ps.setString(3, PassengerStatus.WAITING.name());
+            ps.setString(3, AppConstants.PassengerStatus.WAITING.name());
             ResultSet rs = ps.executeQuery();
 
             // STORE QUERIED DATA IN RS AND TRANSFER TO PASSEMGER OBJECT
@@ -184,10 +184,10 @@ public class PassengerDAO {
             TransactionRunner.run(conn -> {
                 // 1. Attempt to board the passenger with capacity guard
                 try (PreparedStatement ps = conn.prepareStatement(boardSql)) {
-                    ps.setString(1, PassengerStatus.BOARDED.name());
+                    ps.setString(1, AppConstants.PassengerStatus.BOARDED.name());
                     ps.setInt(2, tripId);
                     ps.setInt(3, passengerId);
-                    ps.setString(4, PassengerStatus.WAITING.name());
+                    ps.setString(4, AppConstants.PassengerStatus.WAITING.name());
                     ps.setInt(5, vesselId);
                     ps.setInt(6, maxCapacity);
 
@@ -268,7 +268,7 @@ public class PassengerDAO {
                 "CompletionTimeStamp = CURRENT_TIMESTAMP WHERE PassengerID = ?";
 
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, PassengerStatus.ARRIVED.name());
+            ps.setString(1, AppConstants.PassengerStatus.ARRIVED.name());
             ps.setInt(2, passengerId);
             return ps.executeUpdate() > 0;
         }
@@ -287,7 +287,7 @@ public class PassengerDAO {
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, tripId);
-            ps.setString(2, PassengerStatus.BOARDED.name());
+            ps.setString(2, AppConstants.PassengerStatus.BOARDED.name());
             ResultSet rs = ps.executeQuery();
             if (rs.next()) return rs.getInt(1);
         } catch (SQLException e) {

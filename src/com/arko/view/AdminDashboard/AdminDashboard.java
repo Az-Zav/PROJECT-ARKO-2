@@ -1,6 +1,7 @@
 package com.arko.view.AdminDashboard;
 
 import com.arko.utils.Login.UserSession;
+import com.arko.view.AdminDashboard.AccountSettings.AccountSettingsPanel;
 import com.arko.view.AdminDashboard.ManageEntities.ManageStationsPanel;
 import com.arko.view.AdminDashboard.ManageEntities.ManageUsersPanel;
 import com.arko.view.AdminDashboard.ManageEntities.ManageVesselsPanel;
@@ -30,6 +31,7 @@ public class AdminDashboard extends JFrame {
         com.arko.view.AdminDashboard.ManageEntities.ManageVesselsPanel vesselsPanel = new ManageVesselsPanel();
         com.arko.view.AdminDashboard.ManageEntities.ManageStationsPanel stationsPanel = new ManageStationsPanel();
         com.arko.view.ReportsDashboard.ReportsDashboardPanel reportsPanel = new ReportsDashboardPanel(); // ADD
+        com.arko.view.AdminDashboard.AccountSettings.AccountSettingsPanel accountPanel = new AccountSettingsPanel();
 
         // 2. Initialize the Controller (The Wiring)
         // This automatically sets up the Table, Buttons, and DAO
@@ -42,6 +44,8 @@ public class AdminDashboard extends JFrame {
         cardPanel.add(usersPanel, "USERS");
         cardPanel.add(stationsPanel, "STATIONS");
         cardPanel.add(reportsPanel, "REPORTS");
+        cardPanel.add(accountPanel, "ACCOUNT SETTINGS");
+
 
         // 4. Sidebar setup
         AdminSidebar sidebar = new AdminSidebar(session, cardLayout, cardPanel, this);

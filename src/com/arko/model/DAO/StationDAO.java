@@ -2,7 +2,7 @@ package com.arko.model.DAO;
 
 import com.arko.model.POJO.Station;
 import com.arko.model.database.DBConnection;
-import com.arko.utils.OperationalDashboard.PassengerStatus;
+import com.arko.utils.OperationalDashboard.AppConstants;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -143,7 +143,7 @@ public class StationDAO {
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setString(1, PassengerStatus.WAITING.name());
+            ps.setString(1, AppConstants.PassengerStatus.WAITING.name());
             ps.setString(2, direction);
             int paramIdx = 3;
             for (int stationId : remainingStationIds) {
@@ -206,7 +206,7 @@ public class StationDAO {
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setString(1, PassengerStatus.WAITING.name());
+            ps.setString(1, AppConstants.PassengerStatus.WAITING.name());
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
