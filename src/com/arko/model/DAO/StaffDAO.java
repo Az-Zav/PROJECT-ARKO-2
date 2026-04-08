@@ -49,33 +49,66 @@ public class StaffDAO {
 
     //CREATE
     public boolean insertStaff(Staff s) {
-        String sql = "INSERT INTO Staff (Username, Password, FirstName, LastName, " +
-                "Email, ContactNumber, Role, StationID) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        if(s.getStationID() == -1) {
 
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            String sql = "INSERT INTO Staff (Username, Password, FirstName, LastName, " +
+                    "Email, ContactNumber, Role) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
-            ps.setString(1, s.getUsername());
-            ps.setString(2, s.getPassword());
-            ps.setString(3, s.getFirstName());
-            ps.setString(4, s.getLastName());
-            ps.setString(5, s.getEmail());
-            ps.setString(6, s.getContactNumber());
-            ps.setString(7, s.getRole());
-            ps.setInt(8, s.getStationID());
+            try (Connection conn = DBConnection.getConnection();
+                 PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
-            if (ps.executeUpdate() > 0) {
-                try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
-                    if (generatedKeys.next()) {
-                        s.setStaffID(generatedKeys.getInt(1));
+                ps.setString(1, s.getUsername());
+                ps.setString(2, s.getPassword());
+                ps.setString(3, s.getFirstName());
+                ps.setString(4, s.getLastName());
+                ps.setString(5, s.getEmail());
+                ps.setString(6, s.getContactNumber());
+                ps.setString(7, s.getRole());
+
+                if (ps.executeUpdate() > 0) {
+                    try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
+                        if (generatedKeys.next()) {
+                            s.setStaffID(generatedKeys.getInt(1));
+                        }
                     }
+                    return true;
                 }
-                return true;
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
+            return false;
         }
-        return false;
+        // If station ID is not -1 where any station is selected in dropdown under add user
+        else {
+            String sql = "INSERT INTO Staff (Username, Password, FirstName, LastName, " +
+                    "Email, ContactNumber, Role, StationID) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+
+            try (Connection conn = DBConnection.getConnection();
+                 PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+
+                ps.setString(1, s.getUsername());
+                ps.setString(2, s.getPassword());
+                ps.setString(3, s.getFirstName());
+                ps.setString(4, s.getLastName());
+                ps.setString(5, s.getEmail());
+                ps.setString(6, s.getContactNumber());
+                ps.setString(7, s.getRole());
+                ps.setInt(8, s.getStationID());
+
+                if (ps.executeUpdate() > 0) {
+                    try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
+                        if (generatedKeys.next()) {
+                            s.setStaffID(generatedKeys.getInt(1));
+                        }
+                    }
+                    return true;
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            return false;
+        }
+
     }
 
     //UPDATE
