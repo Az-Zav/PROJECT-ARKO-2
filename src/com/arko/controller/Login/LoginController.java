@@ -33,7 +33,7 @@ public class LoginController {
             if (!outcome.success) {
                 // Check if loginResult exists AND if there are seconds to count down
                 if (outcome.loginResult != null && outcome.loginResult.getLockRemainingSeconds() > 0) {
-                    startCountdown(errorLabel, outcome.loginResult.getLockRemainingSeconds());
+                    startCountdown(errorLabel, outcome.loginResult.getLockRemainingSeconds(), btnLogin);
                 } else {
                     errorLabel.setText(outcome.message);
                 }
@@ -57,7 +57,7 @@ public class LoginController {
     }
 
     // ACCOUNT LOCK COUNTER
-    private void startCountdown(JLabel label, long seconds) {
+    private void startCountdown(JLabel label, long seconds, JButton btnLogin) {
         Timer timer = new Timer(1000, null); // 1-second interval
         final long[] timeRemaining = {seconds};
 
@@ -72,6 +72,7 @@ public class LoginController {
         });
 
         timer.start();
+        btnLogin.setEnabled(true);
     }
 
 

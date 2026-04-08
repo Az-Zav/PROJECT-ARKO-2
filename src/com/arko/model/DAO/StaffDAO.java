@@ -158,6 +158,26 @@ public class StaffDAO {
         }
     }
 
+    // -- called to check if a username already exists
+    public boolean isUsernameTaken(String username, int excludeID) {
+        String sql = "SELECT COUNT(*) FROM staff WHERE username = ? AND staffID != ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, username);
+            pstmt.setInt(2, excludeID);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
 
     // ── Called by AuthController.verifyCredentials() ──────────────
     public Staff findByUsername(String username) throws SQLException {

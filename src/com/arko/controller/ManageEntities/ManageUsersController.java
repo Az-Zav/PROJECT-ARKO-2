@@ -70,9 +70,10 @@ public class ManageUsersController {
             Staff newStaff = extractStaffFromDialog(dialog, new Staff());
 
             // Ensure staff is not assigned global
-            if (!isStationAssignmentValid(newStaff)) {
+            if (!isStaffDataValid(newStaff, -1)) {
                 return; // Validation failed, error message already shown by the helper
             }
+
 
             // 1. Generate a temporary password
             String tempPassword = com.arko.utils.Login.PasswordUtil.generateTemporaryPassword();
@@ -119,7 +120,7 @@ public class ManageUsersController {
             Staff updatedStaff = extractStaffFromDialog(dialog, existingStaff);
 
             // Ensure staff is not assigned global
-            if (!isStationAssignmentValid(updatedStaff)) {
+            if (!isStaffDataValid(updatedStaff, updatedStaff.getStaffID())) {
                 return; // Validation failed
             }
 
@@ -132,19 +133,47 @@ public class ManageUsersController {
     }
 
     /**
-     * Validation Helper: Checks if Staff are assigned a specific station.
+     * Validation Helper: Multiple Validation checks for update and add
      */
-    private boolean isStationAssignmentValid(Staff staff) {
-        // Check if the role is Staff and the Station is set to -1 (Global)
-        if ("STAFF".equalsIgnoreCase(staff.getRole()) && staff.getStationID() == -1) {
-            JOptionPane.showMessageDialog(panel,
-                    "Operational Staff must be assigned to a specific station.\n" +
-                            "Please select a station other than 'Global'.",
-                    "Validation Error",
-                    JOptionPane.WARNING_MESSAGE);
+    private boolean isStaffDataValid(Staff staff, int excludeID) {
+        // 1. Database Check: Username Uniqueness
+        if (staffDAO.isUsernameTaken(staff.getUsername(), excludeID)) {
+            showWarning("The username '" + staff.getUsername() + "' is already taken.");
             return false;
         }
+
+        // 2. Phone Number Format (Exactly 10 digits)
+        if (staff.getContactNumber() == null || !staff.getContactNumber().matches("\\d{10}")) {
+            showWarning("Phone number must be exactly 10 digits (e.g., 9999999999).");
+            return false;
+        }
+
+        // 3. Special Characters Check
+        String nameRegex = "^[a-zA-Z0-9 ]+$";
+        if (!staff.getUsername().matches(nameRegex) ||
+                !staff.getFirstName().matches(nameRegex) ||
+                !staff.getLastName().matches(nameRegex)) {
+            showWarning("Username and names cannot contain special characters.");
+            return false;
+        }
+
+        // 4. Role-based Station Logic
+        if ("STAFF".equalsIgnoreCase(staff.getRole()) && staff.getStationID() == -1) {
+            showWarning("Operational Staff must be assigned to a specific station.");
+            return false;
+        }
+
+        if ("ADMIN".equalsIgnoreCase(staff.getRole()) && staff.getStationID() != -1) {
+            showWarning("Admin cannot be assigned to a specific station. Please set to 'Global'.");
+            return false;
+        }
+
         return true;
+    }
+
+    // Show warning Error
+    private void showWarning(String message) {
+        JOptionPane.showMessageDialog(panel, message, "Validation Error", JOptionPane.WARNING_MESSAGE);
     }
 
     /**
