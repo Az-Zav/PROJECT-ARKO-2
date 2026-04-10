@@ -10,10 +10,12 @@ import com.arko.view.ReportsDashboard.TripManifestPanel;
 
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import java.awt.event.ActionListener;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class TripManifestController {
@@ -23,19 +25,31 @@ public class TripManifestController {
     private final StationDAO        stationDAO;
     private final boolean           isAdmin;
 
-    // Own filter state — independent from the charts' state
     private LocalDate anchorDate = LocalDate.now();
     private String    periodType = "DAILY";
     private int       stationId;
 
-    // Parallel list keeps Trip objects in sync with table rows
     private final ArrayList<Trip> loadedTrips = new ArrayList<>();
 
-    public TripManifestController(TripManifestPanel panel) {
+    private List<Station> cachedStations = Collections.emptyList();
+
+    private final ActionListener periodComboListener;
+
+    public TripManifestController(TripManifestPanel panel,
+                                  PassengerDAO passengerDAO,
+                                  StationDAO stationDAO) {
         this.panel        = panel;
-        this.passengerDAO = new PassengerDAO();
-        this.stationDAO   = new StationDAO();
+        this.passengerDAO = passengerDAO;
+        this.stationDAO   = stationDAO;
         this.isAdmin      = SessionManager.getInstance().isCurrentStaffAdmin();
+
+        this.periodComboListener = e -> {
+            Object sel = this.panel.cmbPeriod.getSelectedItem();
+            if (sel == null) return;
+            periodType = sel.toString().toUpperCase();
+            anchorDate = LocalDate.now();
+            refresh();
+        };
 
         initStationFilter();
         initActionListeners();
@@ -43,20 +57,18 @@ public class TripManifestController {
         refresh();
     }
 
-    // ── Station dropdown setup ────────────────────────────────────────────────
-
     private void initStationFilter() {
         panel.cmbStation.removeAllItems();
 
         if (isAdmin) {
             panel.cmbStation.addItem("All Stations");
             List<Station> stations = stationDAO.getAllStations();
+            cachedStations = new ArrayList<>(stations);
             for (Station s : stations) {
                 panel.cmbStation.addItem(s.getStationName());
             }
             stationId = -1;
         } else {
-            // Staff: locked to their own station
             stationId = SessionManager.getInstance().getCurrentStationId();
             Station station = stationDAO.getStationById(stationId);
             if (station != null) {
@@ -66,8 +78,6 @@ public class TripManifestController {
         }
     }
 
-    // ── Action listeners ──────────────────────────────────────────────────────
-
     private void initActionListeners() {
         panel.cmbStation.addActionListener(e -> {
             if (!isAdmin) return;
@@ -76,22 +86,15 @@ public class TripManifestController {
             if (idx == 0) {
                 stationId = -1;
             } else {
-                List<Station> stations = stationDAO.getAllStations();
                 int offset = idx - 1;
-                if (offset < stations.size()) {
-                    stationId = stations.get(offset).getStationID();
+                if (offset < cachedStations.size()) {
+                    stationId = cachedStations.get(offset).getStationID();
                 }
             }
             refresh();
         });
 
-        panel.cmbPeriod.addActionListener(e -> {
-            Object sel = panel.cmbPeriod.getSelectedItem();
-            if (sel == null) return;
-            periodType = sel.toString().toUpperCase();
-            anchorDate = LocalDate.now();
-            refresh();
-        });
+        panel.cmbPeriod.addActionListener(periodComboListener);
 
         panel.btnBack.addActionListener(e -> {
             anchorDate = shiftAnchor(anchorDate, periodType, -1);
@@ -103,8 +106,6 @@ public class TripManifestController {
             refresh();
         });
     }
-
-    // ── Trip row selection → passenger detail ─────────────────────────────────
 
     private void wireTripSelection() {
         panel.tripTable.getSelectionModel().addListSelectionListener(
@@ -119,34 +120,21 @@ public class TripManifestController {
         );
     }
 
-    // ── Called by ReportsController when the manifest view becomes active ─────
-    // Syncs anchor + period from the shared filter so both views stay aligned.
-
     public void syncFromReportsFilter(LocalDate anchor, String period, int reportsStationId) {
         this.anchorDate = anchor;
         this.periodType = period;
 
-        // Sync period dropdown without re-triggering the listener
         String display = period.substring(0, 1) + period.substring(1).toLowerCase();
-        panel.cmbPeriod.removeActionListener(panel.cmbPeriod.getActionListeners()[0]);
+        panel.cmbPeriod.removeActionListener(periodComboListener);
         panel.cmbPeriod.setSelectedItem(display);
-        panel.cmbPeriod.addActionListener(e -> {
-            Object sel = panel.cmbPeriod.getSelectedItem();
-            if (sel == null) return;
-            periodType = sel.toString().toUpperCase();
-            anchorDate = LocalDate.now();
-            refresh();
-        });
+        panel.cmbPeriod.addActionListener(periodComboListener);
 
-        // Only sync station for admin — staff stay locked to their own station
         if (isAdmin) {
             stationId = reportsStationId;
         }
 
         refresh();
     }
-
-    // ── Core refresh ──────────────────────────────────────────────────────────
 
     public void refresh() {
         LocalDate start = deriveStart(anchorDate, periodType);
@@ -194,8 +182,6 @@ public class TripManifestController {
             });
         }
     }
-
-    // ── Date helpers ──────────────────────────────────────────────────────────
 
     private LocalDate shiftAnchor(LocalDate anchor, String period, int direction) {
         if ("DAILY".equals(period))   return anchor.plusDays(direction);

@@ -14,16 +14,22 @@ import com.arko.view.AdminDashboard.AccountSettings.ConfirmPasswordDialog;
 import javax.swing.*;
 import java.awt.*;
 
+/**
+ * Wires {@link AccountSettingsPanel}: injected {@link StaffDAO} + {@link AuthController} from the screen root.
+ */
 public class AccountSettingsController {
 
     private final AccountSettingsPanel panel;
     private final StaffDAO staffDAO;
     private final AuthController authController;
 
-    public AccountSettingsController(AccountSettingsPanel panel) {
+    private final ForgotPasswordController forgotPasswordController;
+
+    public AccountSettingsController(AccountSettingsPanel panel, StaffDAO staffDAO, AuthController authController) {
         this.panel = panel;
-        this.staffDAO = new StaffDAO();
-        this.authController = new AuthController();
+        this.staffDAO = staffDAO;
+        this.authController = authController;
+        this.forgotPasswordController = new ForgotPasswordController(authController);
 
         initController();
         populateStaffInformation();
@@ -82,8 +88,7 @@ public class AccountSettingsController {
     private void handleForgotInDialog(ConfirmPasswordDialog dialog) {
         String username = SessionManager.getInstance().getCurrentStaff().getUsername();
 
-        ForgotPasswordController forgotController = new ForgotPasswordController();
-        String error = forgotController.handleReset(username);
+        String error = forgotPasswordController.handleReset(username);
 
         if (error != null) {
             JOptionPane.showMessageDialog(dialog, error, "Reset Failed", JOptionPane.ERROR_MESSAGE);

@@ -1,5 +1,7 @@
 package com.arko.view.AdminDashboard.AccountSettings;
 
+import com.arko.view.UIStyler;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
@@ -20,10 +22,10 @@ public class ConfirmPasswordDialog extends JDialog {
         setSize(400, 420);
         setLocationRelativeTo(owner);
         setResizable(false);
+        UIStyler.styleDialogShell(this);
 
         JPanel contentPane = new JPanel(new BorderLayout(15, 15));
-        contentPane.setBackground(Color.WHITE);
-        contentPane.setBorder(new EmptyBorder(25, 30, 25, 30));
+        UIStyler.styleDialogContentPanel(contentPane);
 
         JPanel formPanel = new JPanel(new GridBagLayout());
         formPanel.setOpaque(false);
@@ -35,7 +37,7 @@ public class ConfirmPasswordDialog extends JDialog {
         // 0. Header
         JLabel lblHeader = new JLabel("VERIFY IT'S YOU");
         lblHeader.setFont(new Font("Inter", Font.BOLD, 18));
-        lblHeader.setForeground(new Color(76, 59, 148));
+        lblHeader.setForeground(UIStyler.PRIMARY);
         gbc.gridy = 0;
         gbc.insets = new Insets(0, 0, 10, 0);
         formPanel.add(lblHeader, gbc);
@@ -70,7 +72,7 @@ public class ConfirmPasswordDialog extends JDialog {
         // 4. Forgot Password Button
         btnForgot = new JButton("Forgot password?");
         btnForgot.setFont(new Font("Inter", Font.PLAIN, 12));
-        btnForgot.setForeground(new Color(76, 59, 148));
+        btnForgot.setForeground(UIStyler.PRIMARY);
         btnForgot.setContentAreaFilled(false);
         btnForgot.setBorderPainted(false);
         btnForgot.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -83,10 +85,13 @@ public class ConfirmPasswordDialog extends JDialog {
         btnPanel.setOpaque(false);
 
         btnCancel = new JButton("Cancel");
-        styleButton(btnCancel, new Color(220, 220, 220), Color.BLACK);
+        btnCancel.setPreferredSize(new Dimension(100, 35));
+        UIStyler.styleSecondaryButton(btnCancel);
+        btnCancel.setForeground(Color.BLACK);
 
         btnVerify = new JButton("Verify");
-        styleButton(btnVerify, new Color(76, 59, 148), Color.WHITE);
+        btnVerify.setPreferredSize(new Dimension(100, 35));
+        UIStyler.stylePrimaryButton(btnVerify);
 
         btnPanel.add(btnCancel);
         btnPanel.add(btnVerify);
@@ -104,13 +109,12 @@ public class ConfirmPasswordDialog extends JDialog {
         container.setOpaque(false);
 
         JLabel label = new JLabel(labelStr);
-        label.setFont(new Font("Inter", Font.BOLD, 12));
-        label.setForeground(new Color(80, 80, 80));
+        UIStyler.styleFormLabel(label);
         container.add(label, BorderLayout.NORTH);
 
         JPanel fieldWrapper = new JPanel(new BorderLayout(5, 0));
         fieldWrapper.setOpaque(false);
-        field.setPreferredSize(new Dimension(field.getPreferredSize().width, 35));
+        UIStyler.styleFormField(field);
         fieldWrapper.add(field, BorderLayout.CENTER);
 
         JButton eyeBtn = createEyeButton(field);
@@ -148,14 +152,5 @@ public class ConfirmPasswordDialog extends JDialog {
             return img.getScaledInstance(w, h, Image.SCALE_SMOOTH);
         }
         return null;
-    }
-
-    private void styleButton(JButton btn, Color bg, Color fg) {
-        btn.setPreferredSize(new Dimension(100, 35));
-        btn.setBackground(bg);
-        btn.setForeground(fg);
-        btn.setFocusPainted(false);
-        btn.setBorderPainted(false);
-        btn.setFont(new Font("Inter", Font.BOLD, 13));
     }
 }

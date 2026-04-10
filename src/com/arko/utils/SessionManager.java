@@ -1,6 +1,8 @@
 package com.arko.utils;
 
 import com.arko.model.POJO.Staff;
+import com.arko.utils.Login.StaffRoles;
+
 import java.time.LocalDate;
 
 /**
@@ -29,8 +31,20 @@ public class SessionManager {
         this.currentStaff = staff;
     }
 
-    public void logout() {
+    /** Clears identity and resets report filter state to defaults (single logout/reset contract). */
+    public void resetAll() {
         this.currentStaff = null;
+        resetReportFilters();
+    }
+
+    public void resetReportFilters() {
+        this.reportsPeriodType = "DAILY";
+        this.reportsAnchorDate = LocalDate.now();
+        this.reportsStationId = -1;
+    }
+
+    public void logout() {
+        resetAll();
     }
 
     public boolean isLoggedIn() {
@@ -47,8 +61,15 @@ public class SessionManager {
         return (currentStaff != null) ? currentStaff.getStaffID() : -1;
     }
 
+    /** Display name for the logged-in user (full name when available). */
+    public String getCurrentFullName() {
+        return (currentStaff != null) ? currentStaff.getFullName() : "Guest";
+    }
+
+    /** @deprecated use {@link #getCurrentFullName()} */
+    @Deprecated
     public String getCurrentUserName() {
-        return (currentStaff != null) ? currentStaff.getFirstName() + " " + currentStaff.getLastName() : "Guest";
+        return getCurrentFullName();
     }
 
     public String getCurrentUserRole() {
@@ -64,7 +85,7 @@ public class SessionManager {
     }
 
     public boolean isCurrentStaffAdmin() {
-        return currentStaff != null && "Admin".equalsIgnoreCase(currentStaff.getRole());
+        return currentStaff != null && StaffRoles.isAdmin(currentStaff.getRole());
     }
 
     // ── Reports Filter State Getters/Setters ──────────────────────────────────

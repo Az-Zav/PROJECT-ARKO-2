@@ -53,12 +53,11 @@ public class ManifestPanel extends ModernCard {
         UIStyler.configureColumnWidths(tableManifest);
 
         JScrollPane scrollPane = new JScrollPane(tableManifest);
-        scrollPane.setBorder(null);
-        scrollPane.getViewport().setBackground(Color.WHITE);
+        UIStyler.styleTableScrollPane(scrollPane);
 
         lblTripId = new JLabel("Trip: —");
         lblTripId.setFont(new Font("Inter", Font.BOLD, 11));
-        lblTripId.setForeground(new Color(110, 117, 125));
+        lblTripId.setForeground(UIStyler.TEXT_MUTED);
         lblTripId.setHorizontalAlignment(SwingConstants.RIGHT);
         lblTripId.setBorder(new EmptyBorder(0, 0, 6, 2));
 

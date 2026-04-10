@@ -1,12 +1,15 @@
 package com.arko.view.OperationalDashboard;
 
 import com.arko.controller.AccountSettings.AccountSettingsController;
+import com.arko.controller.Login.AuthController;
 import com.arko.controller.OperationalDashboard.*;
+import com.arko.model.DAO.StaffDAO;
+import com.arko.model.DAO.TripDAO;
 import com.arko.model.POJO.Staff;
-import com.arko.utils.Login.UserSession;
 import com.arko.utils.OperationalDashboard.BoardingSession;
 import com.arko.utils.SessionManager;
 import com.arko.view.AdminDashboard.AccountSettings.AccountSettingsPanel;
+import com.arko.view.MainAppShell;
 import com.arko.view.ReportsDashboard.ReportsDashboardPanel;
 
 import javax.swing.*;
@@ -14,47 +17,41 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import javax.swing.Timer;
 
-public class OperationalDashboard extends JFrame {
+public class OperationalDashboard extends JPanel {
 
     private final Color BG_COLOR    = new Color(240, 242, 245);
     private final Color HEADER_DARK = new Color(18, 24, 38);
 
+    private final MainAppShell appShell;
     private StaffSidebar sidebar;
     private CardLayout cardLayout;
     private JPanel cardPanel;
-    private UserSession session;
-    private JLabel lblClock; // Field for the digital clock
+    private JLabel lblClock;
 
+    private Timer clockTimer;
+    private PassengerDistributionController distributionController;
+    private MapTrackingController mapTrackingController;
+    private BoardingSession boardingSession;
 
-    public OperationalDashboard(UserSession session) {
-        this.session = session;
+    public OperationalDashboard(MainAppShell appShell) {
+        this.appShell = appShell;
 
-        setTitle("PROJECT ARKO");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(1400, 900);
-        getContentPane().setBackground(BG_COLOR);
+        setBackground(BG_COLOR);
         setLayout(new BorderLayout(0, 0));
 
-        // --- SIDEBAR SETUP ---
         cardLayout = new CardLayout();
         cardPanel = new JPanel(cardLayout);
 
-        sidebar = new StaffSidebar(cardLayout, cardPanel, session, this);
+        sidebar = new StaffSidebar(cardLayout, cardPanel, appShell);
 
-        // --- HEADER ---
         add(createHeader(), BorderLayout.NORTH);
-
-        // Start the clock timer
         startClock();
 
-        // --- CONTENT AREA ---
         JPanel contentArea = new JPanel(new BorderLayout(20, 20));
         contentArea.setOpaque(false);
         contentArea.setBorder(new EmptyBorder(20, 20, 20, 20));
 
-        // --- TOP ROW ---
         JPanel topRow = new JPanel(new GridLayout(1, 3, 20, 0));
         topRow.setOpaque(false);
 
@@ -65,10 +62,11 @@ public class OperationalDashboard extends JFrame {
         topRow.add(manifestPanel);
 
         RiverMapPanel riverMapPanel = new RiverMapPanel();
-        MapTrackingController.init(riverMapPanel);
+        TripDAO tripDAO = new TripDAO();
+        mapTrackingController = new MapTrackingController(riverMapPanel, tripDAO);
+        mapTrackingController.start();
         topRow.add(riverMapPanel);
 
-        // --- BOTTOM ROW ---
         JPanel bottomRow = new JPanel(new GridBagLayout());
         bottomRow.setOpaque(false);
         GridBagConstraints gbc = new GridBagConstraints();
@@ -93,39 +91,30 @@ public class OperationalDashboard extends JFrame {
         gbc.insets = new Insets(0, 0, 0, 0);
         bottomRow.add(distributionPanel, gbc);
 
-        // --- CONTROLLER WIRING ---
-        BoardingSession boardingSession = new BoardingSession();
+        boardingSession = new BoardingSession();
 
-        // 1. Core controllers
         ControlPanelController controlPanelController =
-                new ControlPanelController(stationControlsPanel, boardingSession, this);
+                new ControlPanelController(stationControlsPanel, boardingSession, this, mapTrackingController);
 
         PassengerWaitlistController passengerWaitlistController =
-                new PassengerWaitlistController(waitlistPanel, boardingSession, this);
+                new PassengerWaitlistController(waitlistPanel, boardingSession, this, mapTrackingController);
 
         PassengerManifestController passengerManifestController =
-                new PassengerManifestController(manifestPanel, boardingSession);
+                new PassengerManifestController(manifestPanel, boardingSession, mapTrackingController);
 
-        // 2. Link ControlPanel to sub-controllers
         controlPanelController.setWaitlistController(passengerWaitlistController);
         controlPanelController.setManifestController(passengerManifestController);
 
-        // 3. Link Waitlist to others
         passengerWaitlistController.setControlPanelController(controlPanelController);
         passengerWaitlistController.setManifestController(passengerManifestController);
 
-        // 4. Link Manifest back to ControlPanel
         passengerManifestController.setControlPanelController(controlPanelController);
 
-        // 5. Input Form
         new InputFormController(inputFormPanel, passengerWaitlistController, this);
 
-        // 6. Distribution — owns its own refresh cycle, no cross-controller dependency
-        PassengerDistributionController distributionController =
-                new PassengerDistributionController(distributionPanel);
+        distributionController = new PassengerDistributionController(distributionPanel);
         distributionController.startAutoRefresh();
 
-        // --- ASSEMBLE ---
         JPanel centerContent = new JPanel(new GridLayout(2, 1, 0, 20));
         centerContent.setOpaque(false);
         centerContent.add(topRow);
@@ -133,22 +122,21 @@ public class OperationalDashboard extends JFrame {
 
         contentArea.add(centerContent, BorderLayout.CENTER);
 
-        // Wrap dashboard into card
         JPanel dashboardWrapper = new JPanel(new BorderLayout());
         dashboardWrapper.setOpaque(false);
         dashboardWrapper.add(contentArea, BorderLayout.CENTER);
 
-        // Add reports and account settings panel
-
         AccountSettingsPanel accountSettingsPanel = new AccountSettingsPanel();
-        new AccountSettingsController(accountSettingsPanel);
+        StaffDAO staffDAO = new StaffDAO();
+        AuthController authController = new AuthController(staffDAO);
+        new AccountSettingsController(accountSettingsPanel, staffDAO, authController);
 
         cardPanel.add(dashboardWrapper,      "DASHBOARD");
         cardPanel.add(accountSettingsPanel,  "PROFILE");
         cardPanel.add(new ReportsDashboardPanel(), "REPORTS");
 
-        // Main container (sidebar + content)
         JPanel mainContainer = new JPanel(new BorderLayout());
+        mainContainer.setOpaque(false);
         mainContainer.add(sidebar, BorderLayout.WEST);
         mainContainer.add(cardPanel, BorderLayout.CENTER);
 
@@ -157,19 +145,31 @@ public class OperationalDashboard extends JFrame {
         cardLayout.show(cardPanel, "DASHBOARD");
     }
 
-    // ── Header ────────────────────────────────────────────────────────────────
+    public void shutdown() {
+        if (boardingSession != null) {
+            boardingSession.reset();
+        }
+        if (mapTrackingController != null) {
+            mapTrackingController.stop();
+        }
+        if (clockTimer != null) {
+            clockTimer.stop();
+            clockTimer = null;
+        }
+        if (distributionController != null) {
+            distributionController.stopAutoRefresh();
+        }
+    }
 
     private JPanel createHeader() {
         JPanel header = new JPanel(new BorderLayout());
         header.setBackground(HEADER_DARK);
         header.setBorder(new EmptyBorder(12, 20, 12, 20));
 
-        // Left — branding + user info
         Staff staff = SessionManager.getInstance().getCurrentStaff();
-        String userName    = (staff != null) ? staff.getFirstName() + " " + staff.getLastName() : "Unknown";
+        String userName    = (staff != null) ? staff.getFullName() : "Unknown";
         String stationCode = SessionManager.getInstance().getCurrentStationCode();
 
-        // Hamburger button
         JButton hamburger = new JButton("☰");
         hamburger.setFont(new Font("Segoe UI Symbol", Font.BOLD, 22));
         hamburger.setForeground(new Color(0xFFFFFF));
@@ -188,9 +188,8 @@ public class OperationalDashboard extends JFrame {
         leftPanel.add(hamburger);
         leftPanel.add(lblInfo);
 
-        // --- RIGHT PANEL (Digital Clock) ---
         lblClock = new JLabel();
-        lblClock.setFont(new Font("Monospaced", Font.BOLD, 16)); // Monospaced prevents "jumping" numbers
+        lblClock.setFont(new Font("Monospaced", Font.BOLD, 16));
         lblClock.setForeground(Color.WHITE);
 
         JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
@@ -204,13 +203,12 @@ public class OperationalDashboard extends JFrame {
     }
 
     private void startClock() {
-        // Formatter for DD:MM:YYYY - HH:MM:SS (24-hour/military time)
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd:MM:yyyy - HH:mm:ss");
-
-        Timer timer = new Timer(1000, e -> {
-            lblClock.setText(LocalDateTime.now().format(dtf));
-        });
-        timer.setInitialDelay(0);
-        timer.start();
+        if (clockTimer != null) {
+            clockTimer.stop();
+        }
+        clockTimer = new Timer(1000, e -> lblClock.setText(LocalDateTime.now().format(dtf)));
+        clockTimer.setInitialDelay(0);
+        clockTimer.start();
     }
 }

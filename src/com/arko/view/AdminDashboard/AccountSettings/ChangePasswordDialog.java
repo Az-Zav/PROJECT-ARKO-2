@@ -1,5 +1,7 @@
 package com.arko.view.AdminDashboard.AccountSettings;
 
+import com.arko.view.UIStyler;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
@@ -23,10 +25,10 @@ public class ChangePasswordDialog extends JDialog {
         setSize(400, 580);
         setLocationRelativeTo(owner);
         setResizable(false);
+        UIStyler.styleDialogShell(this);
 
         JPanel contentPane = new JPanel(new BorderLayout(15, 15));
-        contentPane.setBackground(Color.WHITE);
-        contentPane.setBorder(new EmptyBorder(25, 30, 25, 30));
+        UIStyler.styleDialogContentPanel(contentPane);
 
         JPanel formPanel = new JPanel(new GridBagLayout());
         formPanel.setOpaque(false);
@@ -38,7 +40,7 @@ public class ChangePasswordDialog extends JDialog {
         // 0. Header
         JLabel lblHeader = new JLabel("CHANGE PASSWORD");
         lblHeader.setFont(new Font("Inter", Font.BOLD, 18));
-        lblHeader.setForeground(new Color(76, 59, 148));
+        lblHeader.setForeground(UIStyler.PRIMARY);
         gbc.gridy = 0;
         gbc.insets = new Insets(0, 0, 10, 0);
         formPanel.add(lblHeader, gbc);
@@ -82,10 +84,13 @@ public class ChangePasswordDialog extends JDialog {
         btnPanel.setOpaque(false);
 
         btnCancel = new JButton("Cancel");
-        styleButton(btnCancel, new Color(220, 220, 220), Color.BLACK);
+        btnCancel.setPreferredSize(new Dimension(150, 35));
+        UIStyler.styleSecondaryButton(btnCancel);
+        btnCancel.setForeground(Color.BLACK);
 
         btnSave = new JButton("Update Password");
-        styleButton(btnSave, new Color(76, 59, 148), Color.WHITE);
+        btnSave.setPreferredSize(new Dimension(150, 35));
+        UIStyler.stylePrimaryButton(btnSave);
 
         btnPanel.add(btnCancel);
         btnPanel.add(btnSave);
@@ -103,13 +108,12 @@ public class ChangePasswordDialog extends JDialog {
         container.setOpaque(false);
 
         JLabel label = new JLabel(labelStr);
-        label.setFont(new Font("Inter", Font.BOLD, 12));
-        label.setForeground(new Color(80, 80, 80));
+        UIStyler.styleFormLabel(label);
         container.add(label, BorderLayout.NORTH);
 
         JPanel fieldWrapper = new JPanel(new BorderLayout(5, 0));
         fieldWrapper.setOpaque(false);
-        field.setPreferredSize(new Dimension(field.getPreferredSize().width, 35));
+        UIStyler.styleFormField(field);
         fieldWrapper.add(field, BorderLayout.CENTER);
 
         JButton eyeBtn = createEyeButton(field, type);
@@ -153,14 +157,5 @@ public class ChangePasswordDialog extends JDialog {
             return img.getScaledInstance(w, h, Image.SCALE_SMOOTH);
         }
         return null;
-    }
-
-    private void styleButton(JButton btn, Color bg, Color fg) {
-        btn.setPreferredSize(new Dimension(150, 35));
-        btn.setBackground(bg);
-        btn.setForeground(fg);
-        btn.setFocusPainted(false);
-        btn.setBorderPainted(false);
-        btn.setFont(new Font("Inter", Font.BOLD, 13));
     }
 }

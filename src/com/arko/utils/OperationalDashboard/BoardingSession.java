@@ -46,6 +46,11 @@ public class BoardingSession {
         this.dockedDirection = null;
     }
 
+    /** Alias for clearing workflow state (e.g. logout or shell teardown). */
+    public void reset() {
+        markDeparted();
+    }
+
     public Vessel getDockedVessel() { return dockedVessel; }
 
     public String getDockedDirection() { return dockedDirection; }

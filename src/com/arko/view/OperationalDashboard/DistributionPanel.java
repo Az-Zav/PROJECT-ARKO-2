@@ -8,8 +8,6 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.List;
 
-import static com.arko.view.UIStyler.*;
-
 public class DistributionPanel extends ModernCard {
 
     public JTable tableDistribution;
@@ -28,11 +26,10 @@ public class DistributionPanel extends ModernCard {
         tableDistribution = new JTable(tableModel);
         UIStyler.styleDistributionTable(tableDistribution);
         tableDistribution.setDefaultRenderer(Object.class,
-                distributionRenderer(UIStyler.HEADER_BG, UIStyler.PRIMARY));
+                UIStyler.distributionRenderer(UIStyler.HEADER_BG, UIStyler.PRIMARY));
 
         JScrollPane scrollPane = new JScrollPane(tableDistribution);
-        scrollPane.setBorder(null);
-        scrollPane.getViewport().setBackground(UIStyler.BG_LIGHT);
+        UIStyler.styleTableScrollPane(scrollPane);
 
         this.container.add(scrollPane, BorderLayout.CENTER);
 
@@ -52,6 +49,6 @@ public class DistributionPanel extends ModernCard {
             tableModel.setValueAt(stations.get(i), i, 0);
         }
 
-        distributionRenderer(HEADER_BG, PRIMARY);
+        UIStyler.distributionRenderer(UIStyler.HEADER_BG, UIStyler.PRIMARY);
     }
 }

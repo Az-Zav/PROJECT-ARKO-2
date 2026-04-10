@@ -1,6 +1,7 @@
 package com.arko.view.AdminDashboard.ManageEntities;
 
 import com.arko.model.POJO.Staff;
+import com.arko.view.UIStyler;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -30,14 +31,14 @@ public class StaffFormDialog extends JDialog {
         setSize(450, 550);
         setLocationRelativeTo(owner);
         setResizable(false);
+        UIStyler.styleDialogShell(this);
 
         JPanel contentPane = new JPanel(new BorderLayout(10, 10));
-        contentPane.setBackground(Color.WHITE);
-        contentPane.setBorder(new EmptyBorder(20, 30, 20, 30));
+        UIStyler.styleDialogContentPanel(contentPane);
 
         // --- FORM PANEL ---
         JPanel formPanel = new JPanel(new GridLayout(0, 1, 5, 5));
-        formPanel.setBackground(Color.WHITE);
+        UIStyler.styleDialogFormPanel(formPanel);
 
         txtUsername = new JTextField();
         txtFirstName = new JTextField();
@@ -58,15 +59,16 @@ public class StaffFormDialog extends JDialog {
 
         // --- BUTTON PANEL ---
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
-        buttonPanel.setBackground(Color.WHITE);
-        buttonPanel.setBorder(new EmptyBorder(20, 0, 0, 0));
+        UIStyler.styleDialogButtonPanel(buttonPanel);
 
         btnCancel = new JButton("Cancel");
-        styleButton(btnCancel, new Color(108, 117, 125));
+        btnCancel.setPreferredSize(new Dimension(120, 35));
+        UIStyler.styleSecondaryButton(btnCancel);
         btnCancel.addActionListener(e -> dispose());
 
         btnSave = new JButton(isUpdateMode ? "Update Data" : "Save User");
-        styleButton(btnSave, new Color(76, 59, 148)); // ARKO Primary Color
+        btnSave.setPreferredSize(new Dimension(120, 35));
+        UIStyler.stylePrimaryButton(btnSave);
         btnSave.addActionListener(e -> {
             isSaved = true;
             dispose();
@@ -93,28 +95,11 @@ public class StaffFormDialog extends JDialog {
 
     private void addFormField(JPanel panel, String labelText, JComponent field) {
         JLabel label = new JLabel(labelText);
-        label.setFont(new Font("Inter", Font.BOLD, 12));
-        label.setForeground(new Color(80, 80, 80));
-
-        field.setPreferredSize(new Dimension(field.getPreferredSize().width, 35));
-        if (field instanceof JTextField) {
-            ((JTextField) field).setBorder(BorderFactory.createCompoundBorder(
-                    BorderFactory.createLineBorder(new Color(200, 200, 200)),
-                    BorderFactory.createEmptyBorder(0, 8, 0, 8)));
-        }
+        UIStyler.styleFormLabel(label);
+        UIStyler.styleFormField(field);
 
         panel.add(label);
         panel.add(field);
-    }
-
-    private void styleButton(JButton btn, Color bgColor) {
-        btn.setPreferredSize(new Dimension(120, 35));
-        btn.setBackground(bgColor);
-        btn.setForeground(Color.WHITE);
-        btn.setFocusPainted(false);
-        btn.setFont(new Font("Inter", Font.BOLD, 13));
-        btn.setBorderPainted(false);
-        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
     }
 
     public boolean isSaved() {

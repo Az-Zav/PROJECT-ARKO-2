@@ -1,16 +1,11 @@
 package com.arko.utils.Login;
 
-/**
- * ROLE:        Plain data carrier (DTO) returned by
- *              AuthController.verifyCredentials().
- *
- * CONNECTIONS :
- *      ← Auth.AuthController                   populates this object
- *      → Controller.LoginController            reads valid/role to decide next screen
- *      → Controller.ChangePasswordController   reads staffId for updatePassword
- *      → Session.UserSession                   receives staffId/username/fullName/role
- */
+import com.arko.model.POJO.Staff;
 
+/**
+ * Plain DTO returned by {@link com.arko.controller.Login.AuthController#verifyCredentials}.
+ * Short-lived: used for the login / change-password transition only.
+ */
 public class LoginResult {
 
     // ── Authentication outcome ───────────────────────────────
@@ -28,6 +23,9 @@ public class LoginResult {
     private boolean active;             // mirrors Staff.IsActive column
     private boolean twoFactorEnabled;   // true when Google Authenticator is required
     private long lockRemainingSeconds;
+
+    /** Full staff row when {@link #valid} — avoids a second DB fetch after login. */
+    private Staff authenticatedStaff;
 
     // ── Getters & Setters ────────────────────────────────────
     // (No logic — just get/set pairs)
@@ -55,4 +53,7 @@ public class LoginResult {
 
     public long getLockRemainingSeconds() { return lockRemainingSeconds; }
     public void setLockRemainingSeconds(long seconds) { this.lockRemainingSeconds = seconds; }
+
+    public Staff getAuthenticatedStaff() { return authenticatedStaff; }
+    public void setAuthenticatedStaff(Staff authenticatedStaff) { this.authenticatedStaff = authenticatedStaff; }
 }

@@ -1,11 +1,11 @@
 package com.arko.view.OperationalDashboard;
 
 import com.arko.view.ModernCard;
+import com.arko.view.UIStyler;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumnModel;
 import java.awt.*;
 
@@ -29,8 +29,7 @@ public class RiverMapPanel extends ModernCard {
 
         // 2. Wrap in ScrollPane
         JScrollPane scrollPane = new JScrollPane(tableRiverMap);
-        scrollPane.setBorder(null);
-        scrollPane.getViewport().setBackground(Color.WHITE);
+        UIStyler.styleTableScrollPane(scrollPane);
 
         // 3. Assemble in ModernCard Container
         this.container.add(scrollPane, BorderLayout.CENTER);
@@ -50,21 +49,9 @@ public class RiverMapPanel extends ModernCard {
     }
 
     private void styleTable(JTable t) {
+        UIStyler.styleStripedDataTable(t, -1);
         t.setRowHeight(35);
-        t.setShowGrid(false);
-        t.setIntercellSpacing(new Dimension(0, 0));
-        t.setFont(new Font("Inter", Font.PLAIN, 12));
         t.setSelectionBackground(new Color(235, 245, 255));
-
-        // --- HEADER STYLING ---
-        JTableHeader header = t.getTableHeader();
-        header.setBackground(Color.WHITE);
-        header.setFont(new Font("Inter", Font.BOLD, 10)); // Slightly smaller for 7 cols
-        header.setForeground(new Color(110, 117, 125));
-        header.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(230, 232, 235)));
-
-        // Center Align Header Text
-        ((DefaultTableCellRenderer)header.getDefaultRenderer()).setHorizontalAlignment(JLabel.CENTER);
 
         // --- CELL RENDERER (Center Aligned) ---
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer() {

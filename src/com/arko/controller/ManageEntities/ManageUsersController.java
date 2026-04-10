@@ -20,10 +20,10 @@ public class ManageUsersController {
     private final StaffDAO staffDAO;
     private final StationDAO stationDAO;
 
-    public ManageUsersController(ManageUsersPanel panel) {
+    public ManageUsersController(ManageUsersPanel panel, StaffDAO staffDAO, StationDAO stationDAO) {
         this.panel = panel;
-        this.staffDAO = new StaffDAO();
-        this.stationDAO = new StationDAO();
+        this.staffDAO = staffDAO;
+        this.stationDAO = stationDAO;
 
         // 1. Setup the Actions Column (Index 4: ID, User, Name, Role, ACTIONS)
         panel.table.getColumnModel().getColumn(6).setCellRenderer(new ActionCellRenderer());

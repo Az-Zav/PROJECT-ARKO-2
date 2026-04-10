@@ -15,6 +15,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class ReportsController {
@@ -32,16 +33,20 @@ public class ReportsController {
     // local field to check for admin role
     private final boolean isAdmin;
 
+    /** Cached for admin station dropdown — avoids repeated DB hits on each selection event. */
+    private List<Station> cachedAdminStations = Collections.emptyList();
+
     private final TripManifestController tripManifestController;
     private final CardLayout innerCard;
     private final JPanel innerPanel;
     private boolean                      manifestActive = false;
 
-    //constructor
     public ReportsController(ReportsFilterPanel filterPanel,
                              RidershipTimelinePanel timelinePanel,
                              ClassificationPanel classificationPanel,
                              StationAnalyticsPanel analyticsPanel,
+                             PassengerDAO passengerDAO,
+                             StationDAO stationDAO,
                              TripManifestController tripManifestController,
                              CardLayout innerCard,
                              JPanel innerPanel) {
@@ -51,8 +56,8 @@ public class ReportsController {
         this.classificationPanel = classificationPanel;
         this.analyticsPanel      = analyticsPanel;
 
-        this.passengerDAO = new PassengerDAO();
-        this.stationDAO   = new StationDAO();
+        this.passengerDAO = passengerDAO;
+        this.stationDAO   = stationDAO;
         this.isAdmin      = SessionManager.getInstance().isCurrentStaffAdmin();
 
         this.tripManifestController = tripManifestController;
@@ -73,9 +78,9 @@ public class ReportsController {
         filterPanel.cmbStation.removeAllItems();
 
         if (isAdmin) {
-            // Admin sees "All Stations" plus each individual station
             filterPanel.cmbStation.addItem("All Stations");
             List<Station> stations = stationDAO.getAllStations();
+            cachedAdminStations = new ArrayList<>(stations);
             for (Station s : stations) {
                 filterPanel.cmbStation.addItem(s.getStationName());
             }
@@ -108,15 +113,12 @@ public class ReportsController {
 
             if (isAdmin) {
                 if (selectedIndex == 0) {
-                    // "All Stations" selected
                     SessionManager.getInstance().setReportsStationId(-1);
                 } else {
-                    // A specific station was selected — fetch its ID by index
-                    List<Station> stations = stationDAO.getAllStations();
-                    int stationIndex = selectedIndex - 1; // offset by 1 for "All Stations"
-                    if (stationIndex < stations.size()) {
+                    int stationIndex = selectedIndex - 1;
+                    if (stationIndex < cachedAdminStations.size()) {
                         SessionManager.getInstance().setReportsStationId(
-                                stations.get(stationIndex).getStationID());
+                                cachedAdminStations.get(stationIndex).getStationID());
                     }
                 }
             }

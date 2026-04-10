@@ -1,28 +1,30 @@
 package com.arko.view.Login;
 
+import com.arko.controller.Login.AuthController;
 import com.arko.controller.Login.ForgotPasswordController;
 import com.arko.controller.Login.LoginController;
+import com.arko.model.DAO.StaffDAO;
+import com.arko.view.MainAppShell;
 import com.arko.view.UIStyler;
 
 import java.awt.*;
 import javax.swing.*;
 
-public class LoginPanel extends JFrame {
+public class LoginPanel extends JPanel {
 
+    private final MainAppShell appShell;
+    private AuthController authController;
     private JTextField txtUser;
     private JPasswordField txtPass;
     private JButton btnLogin;
     private JLabel errorLabel;
     private boolean showPassword = false;
 
-    public LoginPanel() {
-
-        setTitle("PROJECT ARKO");
-        setSize(1400, 900);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    public LoginPanel(MainAppShell appShell) {
+        this.appShell = appShell;
         setLayout(new BorderLayout());
-        setLocationRelativeTo(null);
-        getContentPane().setBackground(UIStyler.PRIMARY);
+        setOpaque(true);
+        setBackground(UIStyler.PRIMARY);
 
         JPanel main = new JPanel(new GridLayout(1, 2));
         main.setOpaque(false);
@@ -70,20 +72,20 @@ public class LoginPanel extends JFrame {
         // USERNAME
         JLabel userLabel = new JLabel("Username");
         userLabel.setBounds(fieldX, startY - 20, fieldWidth, 20);
-        userLabel.setForeground(UIStyler.PRIMARY);
+        UIStyler.styleFormLabel(userLabel);
         userLabel.setFont(new Font("Inter", Font.PLAIN, 16));
         card.add(userLabel);
 
         txtUser = new JTextField();
         txtUser.setBounds(fieldX, startY, fieldWidth, fieldHeight);
-        UIStyler.styleUI(txtUser);
+        UIStyler.styleFormField(txtUser);
         txtUser.setFont(new Font("Inter", Font.PLAIN, 16));
         card.add(txtUser);
 
         // PASSWORD
         JLabel passLabel = new JLabel("Password");
         passLabel.setBounds(fieldX, startY + fieldHeight + spacing, fieldWidth, 20);
-        passLabel.setForeground(UIStyler.PRIMARY);
+        UIStyler.styleFormLabel(passLabel);
         passLabel.setFont(new Font("Inter", Font.PLAIN, 16));
         card.add(passLabel);
 
@@ -95,7 +97,7 @@ public class LoginPanel extends JFrame {
 
         txtPass = new JPasswordField();
         txtPass.setBounds(0, 0, fieldWidth, fieldHeight);
-        UIStyler.styleUI(txtPass);
+        UIStyler.styleFormField(txtPass);
         txtPass.setFont(new Font("Inter", Font.PLAIN, 16));
         passPanel.add(txtPass);
 
@@ -145,7 +147,7 @@ public class LoginPanel extends JFrame {
         btnLogin = new JButton("Login");
         int btnWidth = 140;
         btnLogin.setBounds(fieldX + fieldWidth - btnWidth, card.getPreferredSize().height - fieldHeight - 30, btnWidth, fieldHeight);
-        UIStyler.styleButton(btnLogin, UIStyler.PRIMARY, UIStyler.PRIMARY_HOVER, UIStyler.TEXT_LIGHT, UIStyler.DISABLED_BG, UIStyler.DISABLED_FG);
+        UIStyler.stylePrimaryButton(btnLogin);
         btnLogin.setFont(new Font("Inter", Font.BOLD, 16));
         card.add(btnLogin);
 
@@ -155,18 +157,25 @@ public class LoginPanel extends JFrame {
         main.add(right);
         add(main, BorderLayout.CENTER);
 
-        // WIRE CONTROLLER — must be last, after all fields are assigned
-        new LoginController(txtUser, txtPass, btnLogin, errorLabel);
+        StaffDAO staffDAO = new StaffDAO();
+        this.authController = new AuthController(staffDAO);
+        new LoginController(txtUser, txtPass, btnLogin, errorLabel, appShell, this.authController);
+    }
 
-        setVisible(true);
+    /** Called when returning from a dashboard after logout. */
+    public void prepareForReturn() {
+        txtUser.setText("");
+        txtPass.setText("");
+        errorLabel.setText(" ");
     }
 
     //FORGOT PASSWORD DIALOG
     private void showForgotPasswordDialog() {
         JTextField usernameInput = new JTextField(20);
 
+        Window win = SwingUtilities.getWindowAncestor(this);
         int result = JOptionPane.showConfirmDialog(
-                this,
+                win != null ? win : this,
                 new Object[]{ "Enter your username:", usernameInput },
                 "Forgot Password",
                 JOptionPane.OK_CANCEL_OPTION
@@ -174,13 +183,13 @@ public class LoginPanel extends JFrame {
 
         if (result != JOptionPane.OK_OPTION) return;
 
-        ForgotPasswordController controller = new ForgotPasswordController();
+        ForgotPasswordController controller = new ForgotPasswordController(authController);
         String error = controller.handleReset(usernameInput.getText().trim());
 
         if (error != null) {
-            JOptionPane.showMessageDialog(this, error, "Reset Failed", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(win != null ? win : this, error, "Reset Failed", JOptionPane.ERROR_MESSAGE);
         } else {
-            JOptionPane.showMessageDialog(this,
+            JOptionPane.showMessageDialog(win != null ? win : this,
                     "A temporary password has been sent to your registered email.\n" +
                             "You will be required to change it on next login.",
                     "Check Your Email",
@@ -198,9 +207,5 @@ public class LoginPanel extends JFrame {
         }
         System.out.println("Image not found: " + path);
         return null;
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(LoginPanel::new);
     }
 }

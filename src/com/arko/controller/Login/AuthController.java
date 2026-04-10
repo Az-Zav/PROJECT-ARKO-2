@@ -12,13 +12,14 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class AuthController {
 
-    private static final int MAX_FAILED_ATTEMPTS = 3;
-    private static final int LOCK_SECONDS = 30;
-
     private static final Map<String, Integer> FAILED_ATTEMPTS = new ConcurrentHashMap<>();
     private static final Map<String, LocalDateTime> LOCKED_USERS = new ConcurrentHashMap<>();
 
-    private final StaffDAO staffDAO = new StaffDAO();
+    private final StaffDAO staffDAO;
+
+    public AuthController(StaffDAO staffDAO) {
+        this.staffDAO = staffDAO;
+    }
 
     public LoginResult verifyCredentials(String username, String password) {
         LoginResult loginResult = new LoginResult();
@@ -58,6 +59,7 @@ public class AuthController {
             clearFailedAttempts(normalizedUsername);
 
             loginResult.setValid(true);
+            loginResult.setAuthenticatedStaff(staff);
             loginResult.setStaffId(staff.getStaffID());
             loginResult.setUsername(staff.getUsername());
             loginResult.setFullName(staff.getFullName());
@@ -90,8 +92,8 @@ public class AuthController {
     private void recordFailedAttempt(String username) {
         int attempts = FAILED_ATTEMPTS.getOrDefault(username, 0) + 1;
         FAILED_ATTEMPTS.put(username, attempts);
-        if (attempts >= MAX_FAILED_ATTEMPTS) {
-            LOCKED_USERS.put(username, LocalDateTime.now().plusSeconds(LOCK_SECONDS));
+        if (attempts >= AuthLockoutConfig.MAX_FAILED_ATTEMPTS) {
+            LOCKED_USERS.put(username, LocalDateTime.now().plusSeconds(AuthLockoutConfig.LOCK_SECONDS));
         }
     }
 

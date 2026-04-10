@@ -8,7 +8,11 @@ import java.sql.SQLException;
 
 public class ForgotPasswordController {
 
-    private final AuthController authController = new AuthController();
+    private final AuthController authController;
+
+    public ForgotPasswordController(AuthController authController) {
+        this.authController = authController;
+    }
 
     // Returns null on success, error string on failure
     public String handleReset(String username) {

@@ -1,20 +1,15 @@
 package com.arko.view.AdminDashboard;
 
-import com.arko.utils.Login.UserSession;
+import com.arko.model.POJO.Staff;
 import com.arko.utils.SessionManager;
+import com.arko.view.MainAppShell;
+import com.arko.view.UIStyler;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 
 public class AdminSidebar extends JPanel {
-
-    private static final Color SIDEBAR_BG = new Color(76, 59, 148);
-    private static final Color ACTIVE_BG  = new Color(55, 42, 110);
-    private static final Color TEXT_WHITE = Color.WHITE;
-    private static final Color TEXT_DIM   = new Color(200, 200, 210);
 
     public JButton btnVessels;
     public JButton btnStations;
@@ -25,27 +20,25 @@ public class AdminSidebar extends JPanel {
 
     private JButton activeButton = null;
 
-    public AdminSidebar(UserSession session, CardLayout cardLayout, JPanel cardPanel, AdminDashboard adminDashboard) {
-        setBackground(SIDEBAR_BG);
+    public AdminSidebar(CardLayout cardLayout, JPanel cardPanel, MainAppShell appShell) {
+        UIStyler.styleSidebarPanel(this);
         setPreferredSize(new Dimension(250, 0));
         setLayout(new BorderLayout());
 
         // --- TOP: Profile Section ---
         JPanel profilePanel = new JPanel();
         profilePanel.setLayout(new BoxLayout(profilePanel, BoxLayout.Y_AXIS));
-        profilePanel.setBackground(SIDEBAR_BG);
-        profilePanel.setBorder(BorderFactory.createEmptyBorder(20, 15, 20, 10));
+        UIStyler.styleSidebarProfilePanel(profilePanel);
 
-        String fullName = (session != null) ? session.getFullName() : "Admin";
-        String role     = (session != null) ? session.getRole()     : "ADMIN";
+        Staff staff = SessionManager.getInstance().getCurrentStaff();
+        String fullName = (staff != null) ? staff.getFullName() : "Admin";
+        String role     = (staff != null) ? staff.getRole()     : "ADMIN";
 
         JLabel nameLabel = new JLabel(fullName);
-        nameLabel.setForeground(TEXT_WHITE);
-        nameLabel.setFont(new Font("Inter", Font.BOLD, 18));
+        UIStyler.styleSidebarNameLabel(nameLabel);
 
         JLabel roleLabel = new JLabel(role);
-        roleLabel.setForeground(TEXT_WHITE);
-        roleLabel.setFont(new Font("Inter", Font.PLAIN, 16));
+        UIStyler.styleSidebarRoleLabel(roleLabel);
 
         profilePanel.add(nameLabel);
         profilePanel.add(roleLabel);
@@ -100,15 +93,14 @@ public class AdminSidebar extends JPanel {
 
         btnLogout = createButton("Logout", loadIcon("/com/resources/Icons/logout.png"), () -> {
             int confirm = JOptionPane.showConfirmDialog(
-                    adminDashboard,
+                    appShell,
                     "Are you sure you want to logout?",
                     "Logout",
                     JOptionPane.YES_NO_OPTION
             );
             if (confirm == JOptionPane.YES_OPTION) {
                 SessionManager.getInstance().logout();
-                new com.arko.view.Login.LoginPanel();
-                SwingUtilities.getWindowAncestor(this).dispose();
+                appShell.returnToLogin();
             }
         });
         bottomPanel.add(btnLogout);
@@ -123,34 +115,18 @@ public class AdminSidebar extends JPanel {
 
     private JButton createButton(String text, ImageIcon icon, Runnable action) {
         JButton btn = new JButton(text, icon);
-
-        btn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 45));
-        btn.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-        btn.setBackground(SIDEBAR_BG);
-        btn.setForeground(TEXT_WHITE);
-        btn.setFont(new Font("Inter", Font.PLAIN, 18));
-        btn.setFont(btn.getFont().deriveFont(16f));
-        btn.setFocusPainted(false);
-        btn.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 10));
-        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btn.setBorderPainted(false);
-        btn.setOpaque(true);
-
-        btn.setHorizontalAlignment(SwingConstants.LEFT);
-        btn.setHorizontalTextPosition(SwingConstants.RIGHT);
-        btn.setIconTextGap(10);
+        UIStyler.styleSidebarNavButton(btn);
 
         btn.addActionListener(e -> action.run());
 
-        btn.addMouseListener(new MouseAdapter() {
+        btn.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
-            public void mouseEntered(MouseEvent e) {
-                if (btn != activeButton) btn.setBackground(ACTIVE_BG);
+            public void mouseEntered(java.awt.event.MouseEvent e) {
+                if (btn != activeButton) btn.setBackground(UIStyler.SIDEBAR_ACTIVE_BG);
             }
             @Override
-            public void mouseExited(MouseEvent e) {
-                if (btn != activeButton) btn.setBackground(SIDEBAR_BG);
+            public void mouseExited(java.awt.event.MouseEvent e) {
+                if (btn != activeButton) btn.setBackground(UIStyler.SIDEBAR_BG);
             }
         });
 
@@ -171,9 +147,9 @@ public class AdminSidebar extends JPanel {
 
     public void setActive(JButton selected) {
         if (activeButton != null) {
-            activeButton.setBackground(SIDEBAR_BG);
+            activeButton.setBackground(UIStyler.SIDEBAR_BG);
         }
         activeButton = selected;
-        activeButton.setBackground(ACTIVE_BG);
+        activeButton.setBackground(UIStyler.SIDEBAR_ACTIVE_BG);
     }
 }

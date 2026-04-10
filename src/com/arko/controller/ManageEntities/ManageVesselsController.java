@@ -16,9 +16,9 @@ public class ManageVesselsController {
     private final ManageVesselsPanel panel;
     private final VesselDAO vesselDAO;
 
-    public ManageVesselsController(ManageVesselsPanel panel) {
+    public ManageVesselsController(ManageVesselsPanel panel, VesselDAO vesselDAO) {
         this.panel     = panel;
-        this.vesselDAO = new VesselDAO();
+        this.vesselDAO = vesselDAO;
 
         // 1. Setup the Actions Column (index 4: VesselID, Name, MaxCapacity, Status, Actions)
         panel.table.getColumnModel().getColumn(4).setCellRenderer(new ActionCellRenderer());

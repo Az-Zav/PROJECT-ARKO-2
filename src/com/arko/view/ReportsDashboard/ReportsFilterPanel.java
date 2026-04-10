@@ -1,5 +1,7 @@
 package com.arko.view.ReportsDashboard;
 
+import com.arko.view.UIStyler;
+
 import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
@@ -26,10 +28,12 @@ public class ReportsFilterPanel extends JPanel {
 
         JLabel lblTitle = new JLabel("📊  VIEW REPORTS");
         lblTitle.setFont(new Font("Inter", Font.BOLD, 20));
-        lblTitle.setForeground(new Color(55, 30, 145));
+        lblTitle.setForeground(UIStyler.PRIMARY);
 
         btnExport = new JButton("EXPORT PDF");
         btnToggleManifest = new JButton("VIEW TRIP MANIFEST");
+        UIStyler.stylePrimaryButton(btnExport);
+        UIStyler.styleSecondaryButton(btnToggleManifest);
 
         JPanel actionsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
         actionsPanel.setOpaque(false);
@@ -52,13 +56,17 @@ public class ReportsFilterPanel extends JPanel {
 
         // Station dropdown — items populated by ReportsController
         cmbStation = new JComboBox<>();
+        UIStyler.styleComboBox(cmbStation, UIStyler.BG_GREY, UIStyler.PRIMARY, UIStyler.PRIMARY_HOVER, UIStyler.TEXT_LIGHT);
 
         // Period type dropdown — fixed options
         cmbPeriod = new JComboBox<>(new String[]{"Daily", "Weekly", "Monthly", "Yearly"});
+        UIStyler.styleComboBox(cmbPeriod, UIStyler.BG_GREY, UIStyler.PRIMARY, UIStyler.PRIMARY_HOVER, UIStyler.TEXT_LIGHT);
 
         // Navigation: back button, period label, forward button
         btnBack    = new JButton("◀");
         btnForward = new JButton("▶");
+        UIStyler.styleSecondaryButton(btnBack);
+        UIStyler.styleSecondaryButton(btnForward);
 
         // Period display label — shows the current date window
         // e.g. "2026-03-29" for daily, "2026-03-23  →  2026-03-28" for weekly

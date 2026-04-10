@@ -25,16 +25,16 @@ public class ControlPanelController {
     private final TripDAO              tripDAO;
     private final PassengerDAO passengerDAO;
     private final BoardingSession      session;
+    private final MapTrackingController mapTrackingController;
     private boolean atTerminus = false;
 
     private PassengerWaitlistController waitlistController;
     private PassengerManifestController manifestController;
 
-    // BoardingSession is created in OperationalDashboard and shared with
-    // PassengerWaitlistController so both controllers see the same docking state
     public ControlPanelController(StationControlsPanel panel,
                                   BoardingSession session,
-                                  OperationalDashboard operationalDashboard) {
+                                  OperationalDashboard operationalDashboard,
+                                  MapTrackingController mapTrackingController) {
         this.panel                  = panel;
         this.vesselDAO              = new VesselDAO();
         this.stationDAO             = new StationDAO();
@@ -42,6 +42,7 @@ public class ControlPanelController {
         this.passengerDAO           = new PassengerDAO();
         this.session                = session;
         this.operationalDashboard   = operationalDashboard;
+        this.mapTrackingController  = mapTrackingController;
 
         initActionListeners();
         populateVessels();
@@ -151,7 +152,7 @@ public class ControlPanelController {
         if (manifestController != null) manifestController.refreshManifest();
         if (waitlistController  != null) waitlistController.refreshWaitlist();
 
-        MapTrackingController.refreshMap();
+        mapTrackingController.refreshMap();
 
         JOptionPane.showMessageDialog(operationalDashboard,
                 vessel.getVesselName() + " has DOCKED successfully.\n" +
@@ -185,7 +186,7 @@ public class ControlPanelController {
         session.markDeparted();
         resetAfterDepart();
 
-        MapTrackingController.refreshMap();
+        mapTrackingController.refreshMap();
 
         JOptionPane.showMessageDialog(operationalDashboard,
                 vessel.getVesselName() + " has DEPARTED.",
@@ -220,7 +221,7 @@ public class ControlPanelController {
         atTerminus = false;
         resetAfterDepart();
 
-        MapTrackingController.refreshMap();
+        mapTrackingController.refreshMap();
 
         JOptionPane.showMessageDialog(operationalDashboard,
                 vessel.getVesselName() + " trip COMPLETED.\n" +

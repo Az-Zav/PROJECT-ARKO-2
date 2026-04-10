@@ -2,16 +2,26 @@ package com.arko.controller.Login;
 
 import com.arko.model.POJO.Staff;
 import com.arko.utils.Login.DashboardAccess;
+import com.arko.utils.SessionManager;
 import com.arko.utils.Login.LoginResult;
-import com.arko.utils.Login.UserSession;
+import com.arko.utils.Login.StaffRoles;
+import com.arko.view.Login.ChangePasswordFrame;
+import com.arko.view.MainAppShell;
 
 import javax.swing.*;
+import java.awt.*;
 
 public class LoginController {
 
-    public LoginController(JTextField txtUser, JPasswordField txtPass,
-                           JButton btnLogin, JLabel errorLabel) {
+    private final MainAppShell appShell;
+    private final AuthController authController;
 
+    public LoginController(JTextField txtUser, JPasswordField txtPass,
+                           JButton btnLogin, JLabel errorLabel,
+                           MainAppShell appShell,
+                           AuthController authController) {
+        this.appShell = appShell;
+        this.authController = authController;
         handleLogin(txtUser, txtPass, btnLogin, errorLabel);
     }
 
@@ -43,11 +53,10 @@ public class LoginController {
 
             // Check if account requires password change
             if (outcome.nextScreen == NextScreen.CHANGE_PASSWORD) {
-                com.arko.view.Login.ChangePasswordFrame changeFrame =
-                        new com.arko.view.Login.ChangePasswordFrame(
-                                authController, outcome.loginResult, this);
-                changeFrame.setVisible(true);
-                SwingUtilities.getWindowAncestor(btnLogin).dispose();
+                Window owner = SwingUtilities.getWindowAncestor(btnLogin);
+                ChangePasswordFrame changeDlg = new ChangePasswordFrame(
+                        owner, authController, outcome.loginResult, this);
+                changeDlg.setVisible(true);
                 return;
             }
 
@@ -91,9 +100,6 @@ public class LoginController {
         public LoginResult loginResult; // null on failure
     }
 
-    //  Auth dependency (created once per controller instance)
-    private final AuthController authController = new AuthController();
-
     public String validateInputs(String username, String password) {
         if (username == null || username.isBlank())
             return "Please enter your username.";
@@ -131,12 +137,10 @@ public class LoginController {
             return outcome;
         }
 
-        // Route by role
-        if ("ADMIN".equalsIgnoreCase(result.getRole())) {
+        if (StaffRoles.isAdmin(result.getRole())) {
             outcome.message    = "Welcome, Admin!";
             outcome.nextScreen = NextScreen.ADMIN_DASHBOARD;
         } else {
-            // Covers STAFF
             outcome.message    = "Welcome, Staff!";
             outcome.nextScreen = NextScreen.STAFF_DASHBOARD;
         }
@@ -145,24 +149,17 @@ public class LoginController {
     }
 
     public void route(LoginResult loginResult, JComponent caller) {
-        // 1. Fetch the full Staff POJO from the database to ensure SessionManager has everything
         try {
-            Staff staff = authController.findStaffByUsername(loginResult.getUsername());
-
-            // 2. Initialize the Global Session
-            com.arko.utils.SessionManager.getInstance().login(staff);
-
-            // 3. Create the legacy UserSession object for the existing DashboardAccess logic
-            UserSession session = new UserSession(
-                    loginResult.getStaffId(),
-                    loginResult.getUsername(),
-                    loginResult.getFullName(),
-                    loginResult.getRole()
-            );
-
-            // 4. Open the correct dashboard and close login window
-            DashboardAccess.route(session, caller);
-
+            Staff staff = loginResult.getAuthenticatedStaff();
+            if (staff == null) {
+                staff = authController.findStaffByUsername(loginResult.getUsername());
+            }
+            if (staff == null) {
+                JOptionPane.showMessageDialog(caller, "Could not load user profile.");
+                return;
+            }
+            SessionManager.getInstance().login(staff);
+            DashboardAccess.route(appShell);
         } catch (java.sql.SQLException e) {
             JOptionPane.showMessageDialog(caller, "Error initializing session: " + e.getMessage());
         }

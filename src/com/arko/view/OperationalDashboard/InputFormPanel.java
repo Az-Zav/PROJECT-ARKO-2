@@ -37,17 +37,17 @@ public class InputFormPanel extends ModernCard {
         btnEnter = new JButton("ENTER");
 
         // Apply consistent styling
-        UIStyler.styleUI(txtFirstName);
-        UIStyler.styleUI(txtLastName);
-        UIStyler.styleUI(txtMI);
-        UIStyler.styleUI(txtAge);
-        UIStyler.styleUI(txtContact);
+        UIStyler.styleFormField(txtFirstName);
+        UIStyler.styleFormField(txtLastName);
+        UIStyler.styleFormField(txtMI);
+        UIStyler.styleFormField(txtAge);
+        UIStyler.styleFormField(txtContact);
 
         UIStyler.styleComboBox(cmbSex, UIStyler.BG_GREY, UIStyler.PRIMARY, UIStyler.PRIMARY_HOVER, UIStyler.TEXT_LIGHT);
         UIStyler.styleComboBox(cmbClassification, UIStyler.BG_GREY, UIStyler.PRIMARY, UIStyler.PRIMARY_HOVER, UIStyler.TEXT_LIGHT);
         UIStyler.styleComboBox(cmbDestination, UIStyler.BG_GREY, UIStyler.PRIMARY, UIStyler.PRIMARY_HOVER, UIStyler.TEXT_LIGHT);
 
-        UIStyler.styleButton(btnEnter, UIStyler.PRIMARY, UIStyler.PRIMARY_HOVER, UIStyler.TEXT_LIGHT, UIStyler.DISABLED_BG, UIStyler.DISABLED_FG);
+        UIStyler.stylePrimaryButton(btnEnter);
 
         // Layout setup
         JPanel formBody = new JPanel(new GridBagLayout());
@@ -99,8 +99,8 @@ public class InputFormPanel extends ModernCard {
         stack.setOpaque(false);
 
         JLabel lbl = new JLabel(label);
+        UIStyler.styleFormLabel(lbl);
         lbl.setFont(new Font("Inter", Font.BOLD, 10));
-        lbl.setForeground(new Color(72, 54, 150));
 
         stack.add(lbl, BorderLayout.NORTH);
         stack.add(field, BorderLayout.CENTER);

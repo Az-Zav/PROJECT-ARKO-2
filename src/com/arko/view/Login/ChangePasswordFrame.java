@@ -7,12 +7,13 @@ import com.arko.utils.Login.LoginResult;
 import com.arko.view.UIStyler;
 
 import javax.swing.*;
-import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
 import java.awt.*;
 
-public class ChangePasswordFrame extends JFrame {
+/**
+ * Modal dialog over the main app shell so changing password does not dispose the primary frame.
+ */
+public class ChangePasswordFrame extends JDialog {
 
     private final ChangePasswordController controller;
 
@@ -23,20 +24,22 @@ public class ChangePasswordFrame extends JFrame {
     private boolean showNewPassword     = false;
     private boolean showConfirmPassword = false;
 
-    public ChangePasswordFrame(AuthController authController,
+    public ChangePasswordFrame(Window owner,
+                               AuthController authController,
                                LoginResult loginResult,
                                LoginController loginController) {
+        super(owner, "A.R.K.O — Change Password", Dialog.ModalityType.APPLICATION_MODAL);
         this.controller = new ChangePasswordController(
                 authController, loginResult, loginController);
         initUI();
     }
 
     private void initUI() {
-        setTitle("A.R.K.O — Change Password");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         setSize(1400, 900);
-        setLocationRelativeTo(null);
+        setLocationRelativeTo(getOwner());
         setResizable(true);
+        UIStyler.styleDialogShell(this);
         getContentPane().setBackground(UIStyler.PRIMARY);
         setLayout(new BorderLayout());
 
@@ -106,18 +109,14 @@ public class ChangePasswordFrame extends JFrame {
 
         // -- New Password label --
         JLabel newPassLabel = new JLabel("New Password");
+        UIStyler.styleFormLabel(newPassLabel);
         newPassLabel.setFont(new Font("Inter", Font.PLAIN, 16));
-        newPassLabel.setForeground(UIStyler.PRIMARY);
         gbc.gridy = 2;
         gbc.insets = new Insets(0, 0, 6, 0);
         card.add(newPassLabel, gbc);
 
         newPasswordField = new JPasswordField();
-        newPasswordField.setBorder(new CompoundBorder(
-                new LineBorder(UIStyler.BORDER_COLOR, 1),
-                new EmptyBorder(5, 8, 5, 8)));
-        newPasswordField.setBackground(UIStyler.BG_GREY);
-        newPasswordField.setForeground(UIStyler.PRIMARY);
+        UIStyler.styleFormField(newPasswordField);
         newPasswordField.setFont(new Font("Inter", Font.PLAIN, 16));
         newPasswordField.setPreferredSize(new Dimension(fieldWidth, fieldHeight));
         char newEcho = newPasswordField.getEchoChar();
@@ -146,18 +145,14 @@ public class ChangePasswordFrame extends JFrame {
 
         // -- Confirm Password label --
         JLabel confirmLabel = new JLabel("Confirm Password");
+        UIStyler.styleFormLabel(confirmLabel);
         confirmLabel.setFont(new Font("Inter", Font.PLAIN, 16));
-        confirmLabel.setForeground(UIStyler.PRIMARY);
         gbc.gridy = 4;
         gbc.insets = new Insets(0, 0, 6, 0);
         card.add(confirmLabel, gbc);
 
         confirmPasswordField = new JPasswordField();
-        confirmPasswordField.setBorder(new CompoundBorder(
-                new LineBorder(UIStyler.BORDER_COLOR, 1),
-                new EmptyBorder(5, 8, 5, 8)));
-        confirmPasswordField.setBackground(UIStyler.BG_GREY);
-        confirmPasswordField.setForeground(UIStyler.PRIMARY);
+        UIStyler.styleFormField(confirmPasswordField);
         confirmPasswordField.setFont(new Font("Inter", Font.PLAIN, 16));
         confirmPasswordField.setPreferredSize(new Dimension(fieldWidth, fieldHeight));
         char confirmEcho = confirmPasswordField.getEchoChar();
@@ -195,9 +190,7 @@ public class ChangePasswordFrame extends JFrame {
         // -- Save button --
         JButton saveBtn = new JButton("Save New Password");
         saveBtn.setPreferredSize(new Dimension(fieldWidth, 44));
-        // FIXED: Use styleButton instead of createStyledButton
-        UIStyler.styleButton(saveBtn, UIStyler.PRIMARY, UIStyler.PRIMARY_HOVER,
-                UIStyler.TEXT_LIGHT, UIStyler.DISABLED_BG, UIStyler.DISABLED_FG);
+        UIStyler.stylePrimaryButton(saveBtn);
         saveBtn.setFont(new Font("Inter", Font.BOLD, 15));
         saveBtn.addActionListener(e -> onSaveClicked());
         gbc.gridy = 7;

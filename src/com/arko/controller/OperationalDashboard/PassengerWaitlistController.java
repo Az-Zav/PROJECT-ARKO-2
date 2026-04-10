@@ -21,17 +21,19 @@ public class PassengerWaitlistController {
     private final BoardingSession session;
     private boolean isDownstream = false;
     private final OperationalDashboard operationalDashboard;
+    private final MapTrackingController mapTrackingController;
 
     private ControlPanelController      controlPanelController;
     private PassengerManifestController manifestController;
 
-    // session is the same object that ControlPanelController holds —
-    // both controllers share one instance, created in OperationalDashboard
-    public PassengerWaitlistController(WaitlistPanel panel, BoardingSession session, OperationalDashboard operationalDashboard) {
+    public PassengerWaitlistController(WaitlistPanel panel, BoardingSession session,
+                                        OperationalDashboard operationalDashboard,
+                                        MapTrackingController mapTrackingController) {
         this.panel        = panel;
         this.passengerDAO = new PassengerDAO();
         this.session      = session;
         this.operationalDashboard = operationalDashboard;
+        this.mapTrackingController = mapTrackingController;
 
         panel.tableWaitlist.getColumn("Action").setCellRenderer(new BoardButtonRenderer());
         panel.tableWaitlist.getColumn("Action").setCellEditor(new BoardButtonEditor());
@@ -168,7 +170,7 @@ public class PassengerWaitlistController {
                 if (manifestController     != null) manifestController.refreshManifest();
 
                 refreshWaitlist();
-                MapTrackingController.refreshMap();
+                mapTrackingController.refreshMap();
             } else {
                 JOptionPane.showMessageDialog(operationalDashboard,
                         "Could not board passenger. Vessel may be full or passenger already boarded.",

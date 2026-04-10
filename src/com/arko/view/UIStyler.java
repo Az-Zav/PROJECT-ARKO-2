@@ -12,6 +12,8 @@ import java.awt.event.MouseEvent;
 
 public class UIStyler {
 
+    public static final javax.swing.border.Border NO_FOCUS_BORDER = BorderFactory.createEmptyBorder();
+
     // Global Colors
     public static final Color PRIMARY = new Color(0x483696);
     public static final Color PRIMARY_HOVER = new Color(0x7554CA);
@@ -23,6 +25,13 @@ public class UIStyler {
     public static final Color BORDER_COLOR = new Color(234, 234, 234);
     public static final Color GRID_COLOR = new Color(213, 213, 213);
     public static final Color HEADER_BG = new Color(0xF8F8F8);
+    public static final Color PAGE_BG = new Color(240, 242, 245);
+    public static final Color TEXT_DARK = new Color(40, 40, 40);
+    public static final Color TEXT_MUTED = new Color(110, 117, 125);
+    public static final Color SIDEBAR_BG = new Color(76, 59, 148);
+    public static final Color SIDEBAR_ACTIVE_BG = new Color(55, 42, 110);
+    public static final Color SECONDARY_BTN_BG = new Color(108, 117, 125);
+    public static final Color SECONDARY_BTN_HOVER = new Color(91, 99, 107);
 
     // Universal UI Styling
     public static void styleUI(JComponent field) {
@@ -105,6 +114,139 @@ public class UIStyler {
             combo.setForeground(enabled ? fg : DISABLED_FG);
             combo.repaint();
         });
+    }
+
+    public static void stylePrimaryButton(JButton btn) {
+        styleButton(btn, PRIMARY, PRIMARY_HOVER, TEXT_LIGHT, DISABLED_BG, DISABLED_FG);
+    }
+
+    public static void styleSecondaryButton(JButton btn) {
+        styleButton(btn, SECONDARY_BTN_BG, SECONDARY_BTN_HOVER, TEXT_LIGHT, DISABLED_BG, DISABLED_FG);
+    }
+
+    public static void styleFormField(JComponent field) {
+        field.setPreferredSize(new Dimension(field.getPreferredSize().width, 35));
+        if (field instanceof JTextField tf) {
+            styleUI(tf);
+            tf.setFont(new Font("Inter", Font.PLAIN, 13));
+        } else if (field instanceof JPasswordField pf) {
+            stylePasswordField(pf);
+            pf.setFont(new Font("Inter", Font.PLAIN, 13));
+        } else if (field instanceof JComboBox<?> cb) {
+            styleComboBox(cb, BG_GREY, PRIMARY, PRIMARY_HOVER, TEXT_LIGHT);
+            cb.setFont(new Font("Inter", Font.PLAIN, 13));
+        }
+    }
+
+    public static void styleFormLabel(JLabel label) {
+        label.setFont(new Font("Inter", Font.BOLD, 12));
+        label.setForeground(new Color(80, 80, 80));
+    }
+
+    public static void stylePagePanel(JPanel panel) {
+        panel.setBackground(PAGE_BG);
+    }
+
+    public static void stylePageTitle(JLabel label) {
+        label.setFont(new Font("Inter", Font.BOLD, 24));
+        label.setForeground(TEXT_DARK);
+    }
+
+    public static void styleTableContainer(JPanel panel) {
+        panel.setBackground(Color.WHITE);
+        panel.setBorder(new LineBorder(new Color(230, 232, 235), 1, true));
+    }
+
+    public static void styleTableScrollPane(JScrollPane scrollPane) {
+        scrollPane.setBorder(null);
+        scrollPane.getViewport().setBackground(Color.WHITE);
+    }
+
+    public static void styleStripedDataTable(JTable t, int actionColumnIndex) {
+        t.setRowHeight(40);
+        t.setShowGrid(false);
+        t.setIntercellSpacing(new Dimension(0, 0));
+        t.setFont(new Font("Inter", Font.PLAIN, 14));
+
+        JTableHeader header = t.getTableHeader();
+        header.setBackground(Color.WHITE);
+        header.setFont(new Font("Inter", Font.BOLD, 12));
+        header.setForeground(TEXT_MUTED);
+        header.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(230, 232, 235)));
+        header.setPreferredSize(new Dimension(header.getWidth(), 35));
+        ((DefaultTableCellRenderer) header.getDefaultRenderer()).setHorizontalAlignment(JLabel.CENTER);
+
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                setHorizontalAlignment(JLabel.CENTER);
+                setBorder(new EmptyBorder(0, 5, 0, 5));
+                if (!isSelected) {
+                    setBackground(row % 2 == 0 ? Color.WHITE : new Color(248, 249, 250));
+                }
+                return this;
+            }
+        };
+
+        for (int i = 0; i < t.getColumnCount(); i++) {
+            if (i != actionColumnIndex) {
+                t.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+            }
+        }
+    }
+
+    public static void styleDialogShell(JDialog dialog) {
+        dialog.getContentPane().setBackground(Color.WHITE);
+    }
+
+    public static void styleDialogContentPanel(JPanel panel) {
+        panel.setBackground(Color.WHITE);
+        panel.setBorder(new EmptyBorder(20, 30, 20, 30));
+    }
+
+    public static void styleDialogFormPanel(JPanel panel) {
+        panel.setBackground(Color.WHITE);
+    }
+
+    public static void styleDialogButtonPanel(JPanel panel) {
+        panel.setBackground(Color.WHITE);
+        panel.setBorder(new EmptyBorder(20, 0, 0, 0));
+    }
+
+    public static void styleSidebarPanel(JPanel panel) {
+        panel.setBackground(SIDEBAR_BG);
+    }
+
+    public static void styleSidebarProfilePanel(JPanel panel) {
+        panel.setBackground(SIDEBAR_BG);
+        panel.setBorder(BorderFactory.createEmptyBorder(20, 15, 20, 10));
+    }
+
+    public static void styleSidebarNameLabel(JLabel label) {
+        label.setForeground(TEXT_LIGHT);
+        label.setFont(new Font("Inter", Font.BOLD, 18));
+    }
+
+    public static void styleSidebarRoleLabel(JLabel label) {
+        label.setForeground(TEXT_LIGHT);
+        label.setFont(new Font("Inter", Font.PLAIN, 16));
+    }
+
+    public static void styleSidebarNavButton(JButton btn) {
+        btn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 45));
+        btn.setAlignmentX(Component.LEFT_ALIGNMENT);
+        btn.setBackground(SIDEBAR_BG);
+        btn.setForeground(TEXT_LIGHT);
+        btn.setFont(new Font("Inter", Font.PLAIN, 16));
+        btn.setFocusPainted(false);
+        btn.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 10));
+        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btn.setBorderPainted(false);
+        btn.setOpaque(true);
+        btn.setHorizontalAlignment(SwingConstants.LEFT);
+        btn.setHorizontalTextPosition(SwingConstants.RIGHT);
+        btn.setIconTextGap(10);
     }
 
     // Reusable JButton styling
@@ -190,7 +332,7 @@ public class UIStyler {
             public Component getTableCellRendererComponent(JTable table, Object value,
                                                            boolean isSelected, boolean hasFocus, int row, int column) {
                 super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-                setBorder(noFocusBorder);
+                setBorder(NO_FOCUS_BORDER);
                 setHorizontalAlignment(JLabel.CENTER);
                 setFont(new Font("Inter", Font.PLAIN, 11));
 
@@ -240,6 +382,20 @@ public class UIStyler {
             if (i != 5) t.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
         }
     }
+    public static void stylePasswordField(JPasswordField pf) {
+        styleUI(pf);
+    }
+
+    public static void styleScrollPane(JScrollPane sp) {
+        sp.setBorder(BorderFactory.createLineBorder(BORDER_COLOR, 1));
+        sp.getViewport().setBackground(BG_LIGHT);
+    }
+
+    /** Default table look for admin CRUD grids (uses shared header/row colors). */
+    public static void styleAdminEntityTable(JTable t) {
+        baseTableStyle(t, true, HEADER_BG, PRIMARY, 32);
+    }
+
     // --- COLUMN WIDTHS ---
     public static void configureColumnWidths(JTable t) {
         TableColumnModel columnModel = t.getColumnModel();

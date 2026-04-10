@@ -1,11 +1,10 @@
 package com.arko.view.AdminDashboard.ManageEntities;
 
+import com.arko.view.UIStyler;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.JTableHeader;
 import java.awt.*;
 
 public class ManageVesselsPanel extends JPanel {
@@ -16,7 +15,7 @@ public class ManageVesselsPanel extends JPanel {
 
     public ManageVesselsPanel() {
         setLayout(new BorderLayout(10, 10));
-        setBackground(new Color(240, 242, 245));
+        UIStyler.stylePagePanel(this);
         setBorder(new EmptyBorder(20, 20, 20, 20));
 
         // 1. HEADER & TOOLBAR
@@ -24,8 +23,7 @@ public class ManageVesselsPanel extends JPanel {
         headerPanel.setOpaque(false);
 
         JLabel lblTitle = new JLabel("Manage Vessels");
-        lblTitle.setFont(new Font("Inter", Font.BOLD, 24));
-        lblTitle.setForeground(new Color(40, 40, 40));
+        UIStyler.stylePageTitle(lblTitle);
 
         JPanel toolbar = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
         toolbar.setOpaque(false);
@@ -51,12 +49,10 @@ public class ManageVesselsPanel extends JPanel {
         styleTable(table);
 
         JPanel tableContainer = new JPanel(new BorderLayout());
-        tableContainer.setBackground(Color.WHITE);
-        tableContainer.setBorder(new LineBorder(new Color(230, 232, 235), 1, true));
+        UIStyler.styleTableContainer(tableContainer);
 
         JScrollPane scrollPane = new JScrollPane(table);
-        scrollPane.setBorder(null);
-        scrollPane.getViewport().setBackground(Color.WHITE);
+        UIStyler.styleTableScrollPane(scrollPane);
         tableContainer.add(scrollPane, BorderLayout.CENTER);
 
         // 3. ASSEMBLE
@@ -65,39 +61,7 @@ public class ManageVesselsPanel extends JPanel {
     }
 
     private void styleTable(JTable t) {
-        t.setRowHeight(40);
-        t.setShowGrid(false);
-        t.setIntercellSpacing(new Dimension(0, 0));
-        t.setFont(new Font("Inter", Font.PLAIN, 14));
-
-        JTableHeader header = t.getTableHeader();
-        header.setBackground(Color.WHITE);
-        header.setFont(new Font("Inter", Font.BOLD, 12));
-        header.setForeground(new Color(110, 117, 125));
-        header.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(230, 232, 235)));
-        header.setPreferredSize(new Dimension(header.getWidth(), 35));
-
-        ((DefaultTableCellRenderer) header.getDefaultRenderer()).setHorizontalAlignment(JLabel.CENTER);
-
-        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer() {
-            @Override
-            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
-                                                           boolean hasFocus, int row, int column) {
-                super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-                setHorizontalAlignment(JLabel.CENTER);
-                setBorder(new EmptyBorder(0, 5, 0, 5));
-                if (!isSelected) {
-                    setBackground(row % 2 == 0 ? Color.WHITE : new Color(248, 249, 250));
-                }
-                return this;
-            }
-        };
-
-        for (int i = 0; i < t.getColumnCount(); i++) {
-            if (i != 4) { // Skip Actions column
-                t.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
-            }
-        }
+        UIStyler.styleStripedDataTable(t, 4);
 
         t.getColumnModel().getColumn(0).setPreferredWidth(80);  // Vessel ID
         t.getColumnModel().getColumn(1).setPreferredWidth(200); // Name
@@ -108,20 +72,7 @@ public class ManageVesselsPanel extends JPanel {
 
     private void styleAddButton(JButton btn) {
         btn.setPreferredSize(new Dimension(130, 36));
-        btn.setBackground(new Color(76, 59, 148));
-        btn.setForeground(Color.WHITE);
+        UIStyler.stylePrimaryButton(btn);
         btn.setFont(new Font("Inter", Font.BOLD, 13));
-        btn.setFocusPainted(false);
-        btn.setBorderPainted(false);
-        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-
-        btn.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                btn.setBackground(new Color(55, 42, 110));
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                btn.setBackground(new Color(76, 59, 148));
-            }
-        });
     }
 }

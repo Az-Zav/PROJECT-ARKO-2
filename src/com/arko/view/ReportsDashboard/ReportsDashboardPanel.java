@@ -2,6 +2,8 @@ package com.arko.view.ReportsDashboard;
 
 import com.arko.controller.ReportsDashboard.ReportsController;
 import com.arko.controller.ReportsDashboard.TripManifestController;
+import com.arko.model.DAO.PassengerDAO;
+import com.arko.model.DAO.StationDAO;
 import com.arko.utils.SessionManager;
 
 import javax.swing.*;
@@ -55,11 +57,14 @@ public class ReportsDashboardPanel extends JPanel {
         innerPanel.add(contentArea,       "CHARTS");
         innerPanel.add(tripManifestPanel, "MANIFEST");
 
-        // 4. Wire controllers — contentArea is fully built before being handed off
-        TripManifestController tripManifestController = new TripManifestController(tripManifestPanel);
+        PassengerDAO passengerDAO = new PassengerDAO();
+        StationDAO   stationDAO   = new StationDAO();
+        TripManifestController tripManifestController =
+                new TripManifestController(tripManifestPanel, passengerDAO, stationDAO);
         new ReportsController(
                 filterPanel, timelinePanel, classificationPanel,
-                analyticsPanel, tripManifestController, innerCard, innerPanel);
+                analyticsPanel, passengerDAO, stationDAO,
+                tripManifestController, innerCard, innerPanel);
 
         // 5. Add to this panel
         add(innerPanel, BorderLayout.CENTER);

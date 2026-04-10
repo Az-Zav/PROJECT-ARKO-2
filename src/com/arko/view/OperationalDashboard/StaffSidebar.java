@@ -1,7 +1,9 @@
 package com.arko.view.OperationalDashboard;
 
-import com.arko.utils.Login.UserSession;
+import com.arko.model.POJO.Staff;
 import com.arko.utils.SessionManager;
+import com.arko.view.MainAppShell;
+import com.arko.view.UIStyler;
 
 import javax.swing.*;
 import java.awt.*;
@@ -12,29 +14,27 @@ public class StaffSidebar extends JPanel {
     private boolean visible = false;
     public JButton btnLogout;
 
-    public StaffSidebar(CardLayout cardLayout, JPanel cardPanel, UserSession session, OperationalDashboard operationalDashboard) {
+    public StaffSidebar(CardLayout cardLayout, JPanel cardPanel, MainAppShell appShell) {
         setLayout(new BorderLayout());
 
         // Sidebar container
         menuPanel = new JPanel();
         menuPanel.setLayout(new BoxLayout(menuPanel, BoxLayout.Y_AXIS));
-        menuPanel.setBackground(new Color(76, 59, 148));
+        UIStyler.styleSidebarPanel(menuPanel);
         menuPanel.setPreferredSize(new Dimension(250, 0));
 
         // Profile section
         JPanel profilePanel = new JPanel();
         profilePanel.setLayout(new BoxLayout(profilePanel, BoxLayout.Y_AXIS));
-        profilePanel.setBackground(new Color(76, 59, 148));
-        profilePanel.setBorder(BorderFactory.createEmptyBorder(20, 15, 20, 10));
+        UIStyler.styleSidebarProfilePanel(profilePanel);
 
-        // REPLACE HARDCODED STRINGS WITH SESSION DATA
-        JLabel nameLabel = new JLabel(session.getFullName());
-        nameLabel.setForeground(Color.WHITE);
-        nameLabel.setFont(new Font("Inter", Font.BOLD, 18));
+        var sm = SessionManager.getInstance();
+        Staff staff = sm.getCurrentStaff();
+        JLabel nameLabel = new JLabel(staff != null ? staff.getFullName() : "Staff");
+        UIStyler.styleSidebarNameLabel(nameLabel);
 
-        JLabel roleLabel = new JLabel(session.getRole());
-        roleLabel.setForeground(Color.WHITE);
-        roleLabel.setFont(new Font("Inter", Font.PLAIN, 16));
+        JLabel roleLabel = new JLabel(staff != null ? staff.getRole() : "STAFF");
+        UIStyler.styleSidebarRoleLabel(roleLabel);
 
         profilePanel.add(nameLabel);
         profilePanel.add(roleLabel);
@@ -59,7 +59,7 @@ public class StaffSidebar extends JPanel {
         // Logout button
         btnLogout = createButton("Logout", loadIcon("/com/resources/Icons/logout.png"), () -> {
             int confirm = JOptionPane.showConfirmDialog(
-                    operationalDashboard,
+                    appShell,
                     "Are you sure you want to logout?",
                     "Logout",
                     JOptionPane.YES_NO_OPTION
@@ -67,8 +67,7 @@ public class StaffSidebar extends JPanel {
 
             if (confirm == JOptionPane.YES_OPTION) {
                 SessionManager.getInstance().logout();
-                new com.arko.view.Login.LoginPanel();
-                SwingUtilities.getWindowAncestor(this).dispose();
+                appShell.returnToLogin();
             }
         });
 
@@ -92,24 +91,7 @@ public class StaffSidebar extends JPanel {
 
     private JButton createButton(String text, ImageIcon icon, Runnable action) {
         JButton btn = new JButton(text, icon);
-
-        btn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 45));
-        btn.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-        btn.setBackground(new Color(76, 59, 148));
-        btn.setForeground(Color.WHITE);
-        btn.setFont(new Font("Inter", Font.PLAIN, 18));
-        btn.setFont(btn.getFont().deriveFont(16f)); // keeps the font but size 16
-        btn.setFocusPainted(false);
-        btn.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 10));
-        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btn.setBorderPainted(false);
-        btn.setOpaque(true);
-
-        // Align icon to the left
-        btn.setHorizontalAlignment(SwingConstants.LEFT);
-        btn.setHorizontalTextPosition(SwingConstants.RIGHT);
-        btn.setIconTextGap(10);
+        UIStyler.styleSidebarNavButton(btn);
 
         btn.addActionListener(e -> action.run());
         return btn;

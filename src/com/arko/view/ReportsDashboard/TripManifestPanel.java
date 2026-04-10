@@ -1,13 +1,11 @@
 package com.arko.view.ReportsDashboard;
 
 import com.arko.view.ModernCard;
+import com.arko.view.UIStyler;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.JTableHeader;
 import java.awt.*;
 
 public class TripManifestPanel extends JPanel {
@@ -52,6 +50,10 @@ public class TripManifestPanel extends JPanel {
         cmbPeriod  = new JComboBox<>(new String[]{"Daily", "Weekly", "Monthly", "Yearly"});
         btnBack    = new JButton("◀");
         btnForward = new JButton("▶");
+        UIStyler.styleComboBox(cmbStation, UIStyler.BG_GREY, UIStyler.PRIMARY, UIStyler.PRIMARY_HOVER, UIStyler.TEXT_LIGHT);
+        UIStyler.styleComboBox(cmbPeriod, UIStyler.BG_GREY, UIStyler.PRIMARY, UIStyler.PRIMARY_HOVER, UIStyler.TEXT_LIGHT);
+        UIStyler.styleSecondaryButton(btnBack);
+        UIStyler.styleSecondaryButton(btnForward);
 
         lblPeriodDisplay = new JLabel("—");
         lblPeriodDisplay.setFont(new Font("Inter", Font.PLAIN, 12));
@@ -82,12 +84,10 @@ public class TripManifestPanel extends JPanel {
         styleTable(tripTable, cols.length);
 
         JPanel tableContainer = new JPanel(new BorderLayout());
-        tableContainer.setBackground(Color.WHITE);
-        tableContainer.setBorder(new LineBorder(new Color(230, 232, 235), 1, true));
+        UIStyler.styleTableContainer(tableContainer);
 
         JScrollPane scroll = new JScrollPane(tripTable);
-        scroll.setBorder(null);
-        scroll.getViewport().setBackground(Color.WHITE);
+        UIStyler.styleTableScrollPane(scroll);
         tableContainer.add(scroll, BorderLayout.CENTER);
 
         card.container.add(tableContainer, BorderLayout.CENTER);
@@ -101,7 +101,7 @@ public class TripManifestPanel extends JPanel {
 
         lblSelectedTrip = new JLabel("Select a trip above to view its passengers.");
         lblSelectedTrip.setFont(new Font("Inter", Font.ITALIC, 12));
-        lblSelectedTrip.setForeground(new Color(110, 117, 125));
+        lblSelectedTrip.setForeground(UIStyler.TEXT_MUTED);
         lblSelectedTrip.setBorder(new EmptyBorder(0, 0, 8, 0));
 
         String[] cols = {"Code", "Name", "From", "To", "Classification", "Direction", "Status"};
@@ -113,12 +113,10 @@ public class TripManifestPanel extends JPanel {
         styleTable(passengerTable, cols.length);
 
         JPanel tableContainer = new JPanel(new BorderLayout());
-        tableContainer.setBackground(Color.WHITE);
-        tableContainer.setBorder(new LineBorder(new Color(230, 232, 235), 1, true));
+        UIStyler.styleTableContainer(tableContainer);
 
         JScrollPane scroll = new JScrollPane(passengerTable);
-        scroll.setBorder(null);
-        scroll.getViewport().setBackground(Color.WHITE);
+        UIStyler.styleTableScrollPane(scroll);
         tableContainer.add(scroll, BorderLayout.CENTER);
 
         card.container.add(lblSelectedTrip, BorderLayout.NORTH);
@@ -129,40 +127,8 @@ public class TripManifestPanel extends JPanel {
     // ── Shared table styling — mirrors ManageStationsPanel.styleTable() ───────
 
     private void styleTable(JTable t, int colCount) {
-        t.setRowHeight(40);
-        t.setShowGrid(false);
-        t.setIntercellSpacing(new Dimension(0, 0));
-        t.setFont(new Font("Inter", Font.PLAIN, 14));
+        UIStyler.styleStripedDataTable(t, -1);
         t.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         t.getTableHeader().setReorderingAllowed(false);
-
-        JTableHeader header = t.getTableHeader();
-        header.setBackground(Color.WHITE);
-        header.setFont(new Font("Inter", Font.BOLD, 12));
-        header.setForeground(new Color(110, 117, 125));
-        header.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(230, 232, 235)));
-        header.setPreferredSize(new Dimension(header.getWidth(), 35));
-        ((DefaultTableCellRenderer) header.getDefaultRenderer())
-                .setHorizontalAlignment(JLabel.CENTER);
-
-        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer() {
-            @Override
-            public Component getTableCellRendererComponent(
-                    JTable table, Object value, boolean isSelected,
-                    boolean hasFocus, int row, int col) {
-                super.getTableCellRendererComponent(
-                        table, value, isSelected, hasFocus, row, col);
-                setHorizontalAlignment(JLabel.CENTER);
-                setBorder(new EmptyBorder(0, 5, 0, 5));
-                if (!isSelected) {
-                    setBackground(row % 2 == 0 ? Color.WHITE : new Color(248, 249, 250));
-                }
-                return this;
-            }
-        };
-
-        for (int i = 0; i < colCount; i++) {
-            t.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
-        }
     }
 }

@@ -16,9 +16,9 @@ public class ManageStationsController {
     private final ManageStationsPanel panel;
     private final StationDAO stationDAO;
 
-    public ManageStationsController(ManageStationsPanel panel) {
+    public ManageStationsController(ManageStationsPanel panel, StationDAO stationDAO) {
         this.panel      = panel;
-        this.stationDAO = new StationDAO();
+        this.stationDAO = stationDAO;
 
         // 1. Setup the Actions Column (index 4: StationID, Name, Code, Status, Actions)
         panel.table.getColumnModel().getColumn(4).setCellRenderer(new ActionCellRenderer());
