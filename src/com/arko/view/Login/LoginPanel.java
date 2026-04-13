@@ -19,12 +19,22 @@ public class LoginPanel extends JPanel {
     private JButton btnLogin;
     private JLabel errorLabel;
     private boolean showPassword = false;
+    private Image bgImage;
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        if (bgImage != null) {
+            g.drawImage(bgImage, 0, 0, getWidth(), getHeight(), this);
+        }
+    }
 
     public LoginPanel(MainAppShell appShell) {
         this.appShell = appShell;
         setLayout(new BorderLayout());
         setOpaque(true);
-        setBackground(UIStyler.PRIMARY);
+        java.net.URL bgUrl = getClass().getResource("/com/resources/Login-bg.png");
+        if (bgUrl != null) bgImage = new ImageIcon(bgUrl).getImage();
 
         JPanel main = new JPanel(new GridLayout(1, 2));
         main.setOpaque(false);
@@ -39,6 +49,7 @@ public class LoginPanel extends JPanel {
                 if (url != null) logo = new ImageIcon(url).getImage();
             }
 
+            //Logo Left Panel
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
@@ -49,8 +60,6 @@ public class LoginPanel extends JPanel {
                     g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                     g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
 
-                    // --- CHANGE THIS VALUE ---
-                    // 0.9 means it will take up 90% of the left panel's width
                     double scaleFactor = 0.8;
 
                     int targetWidth = (int) (getWidth() * scaleFactor);
