@@ -12,8 +12,8 @@ public class VesselDAO {
 
     // --- CREATE ---
     public boolean createVessel(Vessel vessel) {
-        String sql = "INSERT INTO vessel (VesselName, MaxCapacity, VesselStatus, CurrentLoad) " +
-                "VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO vessel (VesselName, MaxCapacity, VesselStatus, CurrentLoad, IsActive) " +
+                "VALUES (?, ?, ?, ?, 1)";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
@@ -31,7 +31,7 @@ public class VesselDAO {
     // --- READ ---
     public List<Vessel> getAllVessels() {
         List<Vessel> vessels = new ArrayList<>();
-        String sql = "SELECT * FROM vessel ORDER BY VesselID ASC";
+        String sql = "SELECT * FROM vessel WHERE IsActive = 1 ORDER BY VesselID ASC";
         try (Connection conn = DBConnection.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
@@ -43,9 +43,9 @@ public class VesselDAO {
         return vessels;
     }
 
-    // --- DELETE ---
+    // --- DELETE (soft) ---
     public boolean deleteVessel(int vesselID) {
-        String sql = "DELETE FROM vessel WHERE VesselID = ?";
+        String sql = "UPDATE vessel SET IsActive = 0 WHERE VesselID = ? AND IsActive = 1";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -75,14 +75,15 @@ public class VesselDAO {
      */
     public List<Vessel> getVesselsForStation(int stationId) {
         List<Vessel> list = new ArrayList<>();
-        String sql = "SELECT v.*, t.TripID, t.TripDirection " +   // Added TripDirection
+        String sql = "SELECT v.*, t.TripID, t.TripDirection " +
                 "FROM vessel v " +
                 "LEFT JOIN trip t ON v.VesselID = t.VesselID " +
                 "AND t.TripStatus != ? " +
-                "WHERE t.CurrentStationID = ? " +                                    // Already here
-                "OR (t.TripDirection = 'UPSTREAM'   AND t.CurrentStationID > ?) " + // Heading toward lower IDs
-                "OR (t.TripDirection = 'DOWNSTREAM' AND t.CurrentStationID < ?) " + // Heading toward higher IDs
-                "OR (t.TripID IS NULL AND v.VesselStatus = 'Operational')";          // Idle vessels
+                "WHERE v.IsActive = 1 AND (" +
+                "t.CurrentStationID = ? " +
+                "OR (t.TripDirection = 'UPSTREAM'   AND t.CurrentStationID > ?) " +
+                "OR (t.TripDirection = 'DOWNSTREAM' AND t.CurrentStationID < ?) " +
+                "OR (t.TripID IS NULL AND v.VesselStatus = 'Operational'))";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -100,6 +101,7 @@ public class VesselDAO {
                 v.setMaxCapacity(rs.getInt("MaxCapacity"));
                 v.setVesselStatus(rs.getString("VesselStatus"));
                 v.setCurrentLoad(rs.getInt("CurrentLoad"));
+                v.setActive(rs.getBoolean("IsActive"));
                 v.setCurrentTripID(rs.getInt("TripID"));
                 v.setTripDirection(rs.getString("TripDirection")); // Populated for direction-aware boarding
                 list.add(v);
@@ -185,6 +187,7 @@ public class VesselDAO {
         v.setMaxCapacity(rs.getInt("MaxCapacity"));
         v.setVesselStatus(rs.getString("VesselStatus"));
         v.setCurrentLoad(rs.getInt("CurrentLoad"));
+        v.setActive(rs.getBoolean("IsActive"));
         return v;
     }
 }

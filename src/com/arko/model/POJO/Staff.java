@@ -29,7 +29,7 @@ public class Staff {
     private String role;                // ADMIN | STAFF
     private int    stationID;           // -1 for all stations
     private String email;
-
+    private boolean active = true;
 
     // Non-DB field — populated via JOIN in StaffDAO
     private String stationCode;
@@ -89,5 +89,8 @@ public class Staff {
 
     public String getStationCode()                        { return stationCode; }
     public void   setStationCode(String stationCode)      { this.stationCode = stationCode; }
+
+    public boolean isActive() { return active; }
+    public void setActive(boolean active) { this.active = active; }
 }
 

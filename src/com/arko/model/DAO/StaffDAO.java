@@ -20,7 +20,8 @@ public class StaffDAO {
         // LEFT JOIN ensures we still see Admins even if their StationID is NULL
         String sql = "SELECT s.*, st.StationCode " +
                 "FROM staff s " +
-                "LEFT JOIN station st ON s.StationID = st.StationID";
+                "LEFT JOIN station st ON s.StationID = st.StationID " +
+                "WHERE s.IsActive = 1";
 
         try (Connection conn = DBConnection.getConnection();
              Statement stmt = conn.createStatement();
@@ -38,6 +39,7 @@ public class StaffDAO {
 
                 // Map the joined column
                 s.setStationCode(rs.getString("StationCode"));
+                s.setActive(rs.getBoolean("IsActive"));
 
                 staffList.add(s);
             }
@@ -52,7 +54,7 @@ public class StaffDAO {
         if(s.getStationID() == -1) {
 
             String sql = "INSERT INTO staff (Username, Password, FirstName, LastName, " +
-                    "Email, ContactNumber, Role) VALUES (?, ?, ?, ?, ?, ?, ?)";
+                    "Email, ContactNumber, Role, IsActive) VALUES (?, ?, ?, ?, ?, ?, ?, 1)";
 
             try (Connection conn = DBConnection.getConnection();
                  PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -81,7 +83,7 @@ public class StaffDAO {
         // If station ID is not -1 where any station is selected in dropdown under add user
         else {
             String sql = "INSERT INTO staff (Username, Password, FirstName, LastName, " +
-                    "Email, ContactNumber, Role, StationID) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                    "Email, ContactNumber, Role, StationID, IsActive) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)";
 
             try (Connection conn = DBConnection.getConnection();
                  PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -115,7 +117,7 @@ public class StaffDAO {
     public boolean updateStaff(Staff s) {
         String sql = "UPDATE staff SET Username = ?, FirstName = ?, LastName = ?, " +
                 "Email = ?, ContactNumber = ?, Role = ?, StationID = ? " +
-                "WHERE StaffID = ?";
+                "WHERE StaffID = ? AND IsActive = 1";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -143,9 +145,9 @@ public class StaffDAO {
         }
     }
 
-    //DELETE
+    //DELETE (soft)
     public boolean deleteStaff(int staffID) {
-        String sql = "DELETE FROM staff WHERE StaffID = ?";
+        String sql = "UPDATE staff SET IsActive = 0 WHERE StaffID = ? AND IsActive = 1";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -160,7 +162,7 @@ public class StaffDAO {
 
     // -- called to check if a username already exists
     public boolean isUsernameTaken(String username, int excludeID) {
-        String sql = "SELECT COUNT(*) FROM staff WHERE username = ? AND staffID != ?";
+        String sql = "SELECT COUNT(*) FROM staff WHERE username = ? AND staffID != ? AND IsActive = 1";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
@@ -184,7 +186,7 @@ public class StaffDAO {
         String sql = "SELECT s.*, st.StationCode " +
                 "FROM staff s " +
                 "LEFT JOIN station st ON s.StationID = st.StationID " +
-                "WHERE s.Username = ? LIMIT 1";
+                "WHERE s.Username = ? AND s.IsActive = 1 LIMIT 1";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -205,6 +207,7 @@ public class StaffDAO {
                 staff.setEmail(rs.getString("Email"));
                 staff.setStationID(rs.getInt("StationID"));
                 staff.setStationCode(rs.getString("StationCode"));
+                staff.setActive(rs.getBoolean("IsActive"));
                 return staff;
             }
         }
@@ -212,7 +215,7 @@ public class StaffDAO {
 
     // ── Called by AuthController.updatePassword() ─────────────────
     public boolean updatePassword(int staffId, String hashedPassword) throws SQLException {
-        String sql = "UPDATE staff SET Password = ? WHERE StaffID = ?";
+        String sql = "UPDATE staff SET Password = ? WHERE StaffID = ? AND IsActive = 1";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -234,6 +237,7 @@ public class StaffDAO {
         s.setRole(rs.getString("Role"));
         s.setStationID(rs.getInt("StationID"));
         s.setEmail(rs.getString("Email"));
+        s.setActive(rs.getBoolean("IsActive"));
 
         // Check if StationCode was included in the SQL JOIN
         // This prevents errors if you call a query that doesn't have the JOIN

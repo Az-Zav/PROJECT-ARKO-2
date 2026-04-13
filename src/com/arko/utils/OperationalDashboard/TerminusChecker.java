@@ -65,7 +65,8 @@ public final class TerminusChecker {
      * This approach does not account for true terminus stations that are unoperational
      */
     private static int[] fetchBounds() {
-        String sql = "SELECT MIN(StationID) AS MinID, MAX(StationID) AS MaxID FROM station WHERE OperationalStatus = 'Operational' ";
+        String sql = "SELECT MIN(StationID) AS MinID, MAX(StationID) AS MaxID FROM station " +
+                "WHERE OperationalStatus = 'Operational' AND IsActive = 1 ";
         try (Connection conn = DBConnection.getConnection();
              Statement stmt  = conn.createStatement();
              ResultSet rs    = stmt.executeQuery(sql)) {

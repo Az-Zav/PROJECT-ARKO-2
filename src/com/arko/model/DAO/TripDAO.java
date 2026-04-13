@@ -156,7 +156,7 @@ public class TripDAO {
                         "  WHEN t.TripDirection = 'DOWNSTREAM' THEN t.CurrentStationID + 1 " +
                         "  ELSE NULL " +
                         "END " +
-                        "WHERE v.VesselStatus = 'Operational'" +
+                        "WHERE v.VesselStatus = 'Operational' AND v.IsActive = 1 " +
                         "ORDER BY v.VesselID ASC";
 
         try (Connection conn = DBConnection.getConnection();

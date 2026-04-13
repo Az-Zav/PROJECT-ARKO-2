@@ -173,7 +173,7 @@ public class PassengerDAO {
                 "UPDATE passengers SET PassengerStatus = ?, TripID = ? " +
                         "WHERE PassengerID = ? " +
                         "AND PassengerStatus = ? " +
-                        "AND (SELECT CurrentLoad FROM vessel WHERE VesselID = ?) < ?";
+                        "AND (SELECT CurrentLoad FROM vessel WHERE VesselID = ? AND IsActive = 1) < ?";
 
         // Vessel load UPDATE — runs only if passenger UPDATE succeeded
         String loadSql =

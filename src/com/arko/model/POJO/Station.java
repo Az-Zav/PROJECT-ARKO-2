@@ -6,6 +6,7 @@ public class Station {
     private String stationName;      // e.g., "Guadalupe"
     private String stationCode;      // e.g., "GUA" (3 characters as per VARCHAR(3))
     private String operationalStatus; // e.g., "Operational", "Closed", "Under Repair"
+    private boolean active = true;
 
     // Constructor for ADDING a new station (Admin Feature)
     public Station(String stationName, String stationCode, String operationalStatus) {
@@ -53,6 +54,9 @@ public class Station {
     public void setOperationalStatus(String operationalStatus) {
         this.operationalStatus = operationalStatus;
     }
+
+    public boolean isActive() { return active; }
+    public void setActive(boolean active) { this.active = active; }
 
     // Standard toString for debugging or populating JComboBoxes
     @Override

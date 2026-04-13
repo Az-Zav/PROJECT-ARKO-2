@@ -14,7 +14,7 @@ public class StationDAO {
 
     // --- CREATE ---
     public boolean createStation(Station station) {
-        String sql = "INSERT INTO station (StationName, StationCode) VALUES (?, ?)";
+        String sql = "INSERT INTO station (StationName, StationCode, IsActive) VALUES (?, ?, 1)";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -31,7 +31,7 @@ public class StationDAO {
     // --- READ ---
     public List<Station> getAllStations() {
         List<Station> stations = new ArrayList<>();
-        String sql = "SELECT * FROM station ORDER BY StationID ASC";
+        String sql = "SELECT * FROM station WHERE IsActive = 1 ORDER BY StationID ASC";
 
         try (Connection conn = DBConnection.getConnection();
              Statement stmt = conn.createStatement();
@@ -63,7 +63,7 @@ public class StationDAO {
     //HELPER TO POPULATE JCOMBO IN INPUT FORM CONTROLLER
     public List<String> getAllStationCodes() {
         List<String> codes = new ArrayList<>();
-        String sql = "SELECT StationCode FROM station ORDER BY StationID ASC";
+        String sql = "SELECT StationCode FROM station WHERE IsActive = 1 ORDER BY StationID ASC";
 
         try (Connection conn = DBConnection.getConnection();
              Statement stmt = conn.createStatement();
@@ -92,8 +92,8 @@ public class StationDAO {
         List<Integer> ids = new ArrayList<>();
 
         String sql = "DOWNSTREAM".equalsIgnoreCase(direction)
-                ? "SELECT StationID FROM station WHERE StationID > ? ORDER BY StationID ASC"
-                : "SELECT StationID FROM station WHERE StationID < ? ORDER BY StationID DESC";
+                ? "SELECT StationID FROM station WHERE StationID > ? AND IsActive = 1 ORDER BY StationID ASC"
+                : "SELECT StationID FROM station WHERE StationID < ? AND IsActive = 1 ORDER BY StationID DESC";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -177,9 +177,9 @@ public class StationDAO {
         }
     }
 
-    // --- DELETE ---
+    // --- DELETE (soft) ---
     public boolean deleteStation(int stationId) {
-        String sql = "DELETE FROM station WHERE StationID = ?";
+        String sql = "UPDATE station SET IsActive = 0 WHERE StationID = ? AND IsActive = 1";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -229,7 +229,7 @@ public class StationDAO {
      */
     public int getTotalStationCount() {
         int count = 0;
-        String sql = "SELECT COUNT(*) FROM station";
+        String sql = "SELECT COUNT(*) FROM station WHERE IsActive = 1";
 
         try (Connection conn = DBConnection.getConnection();
              Statement stmt = conn.createStatement();
@@ -251,6 +251,7 @@ public class StationDAO {
         s.setStationName(rs.getString("StationName"));
         s.setStationCode(rs.getString("StationCode"));
         s.setOperationalStatus(rs.getString("OperationalStatus"));
+        s.setActive(rs.getBoolean("IsActive"));
         return s;
     }
 }

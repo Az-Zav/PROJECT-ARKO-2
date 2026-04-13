@@ -7,6 +7,7 @@ public class Vessel {
     private int    maxCapacity;
     private String vesselStatus;
     private int    currentLoad;
+    private boolean active = true;
 
     // Bridge fields — not in the vessel table, populated via JOIN in VesselDAO
     private int    currentTripID;
@@ -43,6 +44,9 @@ public class Vessel {
 
     public String getTripDirection()             { return tripDirection; }
     public void   setTripDirection(String dir)   { this.tripDirection = dir; }
+
+    public boolean isActive() { return active; }
+    public void setActive(boolean active) { this.active = active; }
 
     @Override
     public String toString() {
