@@ -248,6 +248,7 @@ public class PassengerDAO {
                 p.setBoardingCode(rs.getString("BoardingCode"));
                 p.setFullName(rs.getString("FullName"));
                 p.setPassengerDirection(rs.getString("PassengerDirection"));
+                p.setOriginStationID(rs.getInt("OriginStationID"));
                 p.setDestinationStationID(rs.getInt("DestinationStationID"));
                 p.setPassengerStatus(rs.getString("PassengerStatus"));
                 p.setOriginCode(rs.getString("OriginCode"));
@@ -266,11 +267,33 @@ public class PassengerDAO {
      */
     public boolean markAsArrived(int passengerId, Connection conn) throws SQLException {
         String sql = "UPDATE passengers SET PassengerStatus = ?, " +
-                "CompletionTimeStamp = CURRENT_TIMESTAMP WHERE PassengerID = ?";
+                "CompletionTimeStamp = CURRENT_TIMESTAMP WHERE PassengerID = ? AND PassengerStatus = ?";
 
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, AppConstants.PassengerStatus.ARRIVED.name());
             ps.setInt(2, passengerId);
+            ps.setString(3, AppConstants.PassengerStatus.BOARDED.name());
+            return ps.executeUpdate() > 0;
+        }
+    }
+
+    /**
+     * Marks a passenger arrived at {@code alightStationId}, updating destination and direction when
+     * alighting away from the booked destination. Must be called inside an existing transaction.
+     */
+    public boolean markAsArrivedAtStation(int passengerId, int alightStationId, int originStationId,
+                                          Connection conn) throws SQLException {
+        String direction = (alightStationId > originStationId) ? "DOWNSTREAM" : "UPSTREAM";
+        String sql = "UPDATE passengers SET PassengerStatus = ?, CompletionTimeStamp = CURRENT_TIMESTAMP, " +
+                "DestinationStationID = ?, PassengerDirection = ? " +
+                "WHERE PassengerID = ? AND PassengerStatus = ?";
+
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, AppConstants.PassengerStatus.ARRIVED.name());
+            ps.setInt(2, alightStationId);
+            ps.setString(3, direction);
+            ps.setInt(4, passengerId);
+            ps.setString(5, AppConstants.PassengerStatus.BOARDED.name());
             return ps.executeUpdate() > 0;
         }
     }

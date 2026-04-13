@@ -52,7 +52,7 @@ public class ManageStationsController {
         dialog.setVisible(true);
 
         if (dialog.isSaved()) {
-            if (!isCodeValid(dialog)) return;
+            if (!isCodeValid(dialog) || !isNameValid(dialog)) return;
 
             Station newStation = extractStationFromDialog(dialog, new Station());
 
@@ -75,7 +75,7 @@ public class ManageStationsController {
         dialog.setVisible(true);
 
         if (dialog.isSaved()) {
-            if (!isCodeValid(dialog)) return;
+            if (!isCodeValid(dialog) || !isNameValid(dialog)) return;
 
             Station updatedStation = extractStationFromDialog(dialog, existingStation);
 
@@ -114,6 +114,16 @@ public class ManageStationsController {
         if (code.isBlank() || code.length() > 5) {
             JOptionPane.showMessageDialog(panel,
                     "Station code must be between 1 and 5 characters.",
+                    "Validation Error", JOptionPane.WARNING_MESSAGE);
+            return false;
+        }
+        return true;
+    }
+
+    private boolean isNameValid(StationFormDialog dialog) {
+        if (dialog.txtName.getText().trim().isBlank()) {
+            JOptionPane.showMessageDialog(panel,
+                    "Station name cannot be blank.",
                     "Validation Error", JOptionPane.WARNING_MESSAGE);
             return false;
         }

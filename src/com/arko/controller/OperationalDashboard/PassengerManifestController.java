@@ -6,8 +6,10 @@ import com.arko.model.POJO.Passenger;
 import com.arko.model.POJO.Vessel;
 import com.arko.model.database.TransactionRunner;
 import com.arko.utils.OperationalDashboard.BoardingSession;
+import com.arko.utils.SessionManager;
 import com.arko.view.OperationalDashboard.ManifestPanel;
 
+import javax.swing.*;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -66,10 +68,23 @@ public class PassengerManifestController {
         Vessel vessel = session.getDockedVessel();
         if (vessel == null) return;
 
+        int currentStationId = SessionManager.getInstance().getCurrentStationId();
+        if (p.getDestinationStationID() != currentStationId) {
+            int opt = JOptionPane.showConfirmDialog(manifestPanel,
+                    "This passenger's booked destination is not this station.\n" +
+                            "Alighting here will update their destination to the current station.\n\n" +
+                            "Continue?",
+                    "Confirm alighting",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.WARNING_MESSAGE);
+            if (opt != JOptionPane.YES_OPTION) return;
+        }
+
         try {
             // Atomic Transaction: Update passenger status AND boat load at once
             TransactionRunner.run(conn -> {
-                boolean marked = passengerDAO.markAsArrived(p.getPassengerID(), conn);
+                boolean marked = passengerDAO.markAsArrivedAtStation(
+                        p.getPassengerID(), currentStationId, p.getOriginStationID(), conn);
                 if (!marked) throw new SQLException("Failed to update passenger status.");
 
                 vesselDAO.decrementVesselLoad(vessel.getVesselID(), conn);

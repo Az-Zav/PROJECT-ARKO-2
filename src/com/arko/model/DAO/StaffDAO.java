@@ -33,6 +33,8 @@ public class StaffDAO {
                 s.setUsername(rs.getString("Username"));
                 s.setFirstName(rs.getString("FirstName"));
                 s.setLastName(rs.getString("LastName"));
+                String contact = rs.getString("ContactNumber");
+                s.setContactNumber(contact != null ? contact : "");
                 s.setRole(rs.getString("Role"));
                 s.setEmail(rs.getString("Email"));
                 s.setStationID(rs.getInt("StationID"));
@@ -202,7 +204,8 @@ public class StaffDAO {
                 staff.setPassword(rs.getString("Password"));
                 staff.setFirstName(rs.getString("FirstName"));
                 staff.setLastName(rs.getString("LastName"));
-                staff.setContactNumber(rs.getString("ContactNumber"));
+                String contact = rs.getString("ContactNumber");
+                staff.setContactNumber(contact != null ? contact : "");
                 staff.setRole(rs.getString("Role"));
                 staff.setEmail(rs.getString("Email"));
                 staff.setStationID(rs.getInt("StationID"));
@@ -233,7 +236,8 @@ public class StaffDAO {
         s.setUsername(rs.getString("Username"));
         s.setFirstName(rs.getString("FirstName"));
         s.setLastName(rs.getString("LastName"));
-        s.setContactNumber(rs.getString("ContactNumber"));
+        String contact = rs.getString("ContactNumber");
+        s.setContactNumber(contact != null ? contact : "");
         s.setRole(rs.getString("Role"));
         s.setStationID(rs.getInt("StationID"));
         s.setEmail(rs.getString("Email"));

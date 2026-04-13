@@ -2,7 +2,6 @@ package com.arko.view.OperationalDashboard;
 
 import com.arko.model.POJO.Passenger;
 import com.arko.utils.OperationalDashboard.AppConstants;
-import com.arko.utils.SessionManager;
 import com.arko.view.ModernCard;
 import com.arko.view.UIStyler;
 
@@ -41,9 +40,7 @@ public class ManifestPanel extends ModernCard {
                 Passenger p = (Passenger) val;
                 boolean alreadyArrived = AppConstants.PassengerStatus.ARRIVED.name()
                         .equalsIgnoreCase(p.getPassengerStatus());
-                boolean atDestination = p.getDestinationStationID()
-                        == SessionManager.getInstance().getCurrentStationId();
-                return !alreadyArrived && atDestination;
+                return !alreadyArrived;
             }
         };
 
@@ -99,20 +96,9 @@ public class ManifestPanel extends ModernCard {
             Passenger p = (Passenger) value;
             boolean alreadyArrived = AppConstants.PassengerStatus.ARRIVED.name()
                     .equalsIgnoreCase(p.getPassengerStatus());
-            boolean atDestination = p.getDestinationStationID()
-                    == SessionManager.getInstance().getCurrentStationId();
 
-            // ARRIVED passengers show a disabled "COMPLETED" label —
-            // they remain visible in the manifest for reference but cannot
-            // be processed again. BOARDED passengers only show an active
-            // "ARRIVED" button if this station is their destination.
             if (alreadyArrived) {
                 setText("COMPLETED");
-                setEnabled(false);
-                setBackground(new Color(220, 220, 220));
-                setForeground(new Color(120, 120, 120));
-            } else if (!atDestination) {
-                setText("IN TRANSIT");
                 setEnabled(false);
                 setBackground(new Color(220, 220, 220));
                 setForeground(new Color(120, 120, 120));

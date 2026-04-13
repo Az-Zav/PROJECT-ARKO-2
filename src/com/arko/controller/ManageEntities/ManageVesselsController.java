@@ -52,9 +52,9 @@ public class ManageVesselsController {
         dialog.setVisible(true);
 
         if (dialog.isSaved()) {
-            Vessel newVessel = extractVesselFromDialog(dialog, new Vessel());
-
             if (!isCapacityValid(dialog)) return;
+
+            Vessel newVessel = extractVesselFromDialog(dialog, new Vessel());
 
             if (vesselDAO.createVessel(newVessel)) {
                 refreshTable();
@@ -77,9 +77,11 @@ public class ManageVesselsController {
         if (dialog.isSaved()) {
             if (!isCapacityValid(dialog)) return;
 
-            Vessel updatedVessel = extractVesselFromDialog(dialog, existingVessel);
+            Vessel candidate = new Vessel();
+            candidate.setVesselID(existingVessel.getVesselID());
+            extractVesselFromDialog(dialog, candidate);
 
-            if (vesselDAO.updateVessel(updatedVessel)) {
+            if (vesselDAO.updateVessel(candidate)) {
                 refreshTable();
             } else {
                 JOptionPane.showMessageDialog(panel,

@@ -117,14 +117,15 @@ public class ManageUsersController {
         dialog.setVisible(true);
 
         if (dialog.isSaved()) {
-            Staff updatedStaff = extractStaffFromDialog(dialog, existingStaff);
+            Staff candidate = new Staff();
+            candidate.setStaffID(existingStaff.getStaffID());
+            extractStaffFromDialog(dialog, candidate);
 
-            // Ensure staff is not assigned global
-            if (!isStaffDataValid(updatedStaff, updatedStaff.getStaffID())) {
-                return; // Validation failed
+            if (!isStaffDataValid(candidate, candidate.getStaffID())) {
+                return;
             }
 
-            if (staffDAO.updateStaff(updatedStaff)) {
+            if (staffDAO.updateStaff(candidate)) {
                 refreshTable();
             } else {
                 JOptionPane.showMessageDialog(panel, "Failed to update user profile.", "Error", JOptionPane.ERROR_MESSAGE);

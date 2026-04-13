@@ -4,8 +4,10 @@ import com.arko.controller.AccountSettings.AccountSettingsController;
 import com.arko.controller.Login.AuthController;
 import com.arko.controller.OperationalDashboard.*;
 import com.arko.model.DAO.StaffDAO;
+import com.arko.model.DAO.StationDAO;
 import com.arko.model.DAO.TripDAO;
 import com.arko.model.POJO.Staff;
+import com.arko.model.POJO.Station;
 import com.arko.utils.OperationalDashboard.BoardingSession;
 import com.arko.utils.SessionManager;
 import com.arko.view.AdminDashboard.AccountSettings.AccountSettingsPanel;
@@ -33,6 +35,9 @@ public class OperationalDashboard extends JPanel {
     private PassengerDistributionController distributionController;
     private MapTrackingController mapTrackingController;
     private BoardingSession boardingSession;
+
+    private JLabel lblHeaderStaffLine;
+    private boolean suppressTempStationListener;
 
     public OperationalDashboard(MainAppShell appShell) {
         this.appShell = appShell;
@@ -161,14 +166,17 @@ public class OperationalDashboard extends JPanel {
         }
     }
 
+    private void updateHeaderStaffLine() {
+        Staff staff = SessionManager.getInstance().getCurrentStaff();
+        String userName = (staff != null) ? staff.getFullName() : "Unknown";
+        String stationCode = SessionManager.getInstance().getCurrentStationCode();
+        lblHeaderStaffLine.setText("ARKO  |  STAFF — " + userName + "  |  " + stationCode);
+    }
+
     private JPanel createHeader() {
         JPanel header = new JPanel(new BorderLayout());
         header.setBackground(HEADER_DARK);
         header.setBorder(new EmptyBorder(12, 20, 12, 20));
-
-        Staff staff = SessionManager.getInstance().getCurrentStaff();
-        String userName    = (staff != null) ? staff.getFullName() : "Unknown";
-        String stationCode = SessionManager.getInstance().getCurrentStationCode();
 
         JButton hamburger = new JButton("☰");
         hamburger.setFont(new Font("Segoe UI Symbol", Font.BOLD, 22));
@@ -179,14 +187,15 @@ public class OperationalDashboard extends JPanel {
         hamburger.setCursor(new Cursor(Cursor.HAND_CURSOR));
         hamburger.addActionListener(e -> sidebar.toggle());
 
-        JLabel lblInfo = new JLabel("ARKO  |  STAFF — " + userName + "  |  " + stationCode);
-        lblInfo.setFont(new Font("SansSerif", Font.BOLD, 14));
-        lblInfo.setForeground(Color.WHITE);
+        lblHeaderStaffLine = new JLabel();
+        lblHeaderStaffLine.setFont(new Font("SansSerif", Font.BOLD, 14));
+        lblHeaderStaffLine.setForeground(Color.WHITE);
+        updateHeaderStaffLine();
 
         JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
         leftPanel.setOpaque(false);
         leftPanel.add(hamburger);
-        leftPanel.add(lblInfo);
+        leftPanel.add(lblHeaderStaffLine);
 
         lblClock = new JLabel();
         lblClock.setFont(new Font("Monospaced", Font.BOLD, 16));

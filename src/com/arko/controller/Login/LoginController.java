@@ -5,23 +5,25 @@ import com.arko.utils.Login.DashboardAccess;
 import com.arko.utils.SessionManager;
 import com.arko.utils.Login.LoginResult;
 import com.arko.utils.Login.StaffRoles;
-import com.arko.view.Login.ChangePasswordFrame;
+import com.arko.view.Login.LoginPanel;
 import com.arko.view.MainAppShell;
 
 import javax.swing.*;
-import java.awt.*;
 
 public class LoginController {
 
     private final MainAppShell appShell;
     private final AuthController authController;
+    private final LoginPanel loginPanel;
 
     public LoginController(JTextField txtUser, JPasswordField txtPass,
                            JButton btnLogin, JLabel errorLabel,
                            MainAppShell appShell,
-                           AuthController authController) {
+                           AuthController authController,
+                           LoginPanel loginPanel) {
         this.appShell = appShell;
         this.authController = authController;
+        this.loginPanel = loginPanel;
         handleLogin(txtUser, txtPass, btnLogin, errorLabel);
     }
 
@@ -53,10 +55,7 @@ public class LoginController {
 
             // Check if account requires password change
             if (outcome.nextScreen == NextScreen.CHANGE_PASSWORD) {
-                Window owner = SwingUtilities.getWindowAncestor(btnLogin);
-                ChangePasswordFrame changeDlg = new ChangePasswordFrame(
-                        owner, authController, outcome.loginResult, this);
-                changeDlg.setVisible(true);
+                loginPanel.showChangePasswordCard(outcome.loginResult);
                 return;
             }
 
