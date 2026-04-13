@@ -17,16 +17,16 @@ public final class DBConfig {
 
     private DBConfig() {}
 
-    public static final String HOST     = "mysql-25df71ba-project-4ark0.j.aivencloud.com";
-    public static final int    PORT     = 23021;
+    public static final String HOST     = "localhost";         //online db: "mysql-25df71ba-project-4ark0.j.aivencloud.com";
+    public static final int    PORT     = 3306;                //           23021;
     public static final String DATABASE = "project_arko_db";
-    public static final String USER     = "avnadmin";
-    public static final String PASSWORD = "AVNS_jtujNQHkcGQTqFWnxO-";
+    public static final String USER     = "root";              //           "avnadmin";
+    public static final String PASSWORD = "rootPwSql";         //           "AVNS_jtujNQHkcGQTqFWnxO-";
 
     // Assembled URL — do not modify
     public static final String URL =
             "jdbc:mysql://" + HOST + ":" + PORT + "/" + DATABASE
-                    + "?sslMode=REQUIRED"
+                    + "?useSSL=false"
                     + "&allowPublicKeyRetrieval=true"
                     + "&serverTimezone=Asia/Manila";
 }
