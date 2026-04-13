@@ -19,7 +19,7 @@ public class StaffDAO {
         List<Staff> staffList = new ArrayList<>();
         // LEFT JOIN ensures we still see Admins even if their StationID is NULL
         String sql = "SELECT s.*, st.StationCode " +
-                "FROM Staff s " +
+                "FROM staff s " +
                 "LEFT JOIN station st ON s.StationID = st.StationID";
 
         try (Connection conn = DBConnection.getConnection();
@@ -51,7 +51,7 @@ public class StaffDAO {
     public boolean insertStaff(Staff s) {
         if(s.getStationID() == -1) {
 
-            String sql = "INSERT INTO Staff (Username, Password, FirstName, LastName, " +
+            String sql = "INSERT INTO staff (Username, Password, FirstName, LastName, " +
                     "Email, ContactNumber, Role) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
             try (Connection conn = DBConnection.getConnection();
@@ -80,7 +80,7 @@ public class StaffDAO {
         }
         // If station ID is not -1 where any station is selected in dropdown under add user
         else {
-            String sql = "INSERT INTO Staff (Username, Password, FirstName, LastName, " +
+            String sql = "INSERT INTO staff (Username, Password, FirstName, LastName, " +
                     "Email, ContactNumber, Role, StationID) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
             try (Connection conn = DBConnection.getConnection();
@@ -113,7 +113,7 @@ public class StaffDAO {
 
     //UPDATE
     public boolean updateStaff(Staff s) {
-        String sql = "UPDATE Staff SET Username = ?, FirstName = ?, LastName = ?, " +
+        String sql = "UPDATE staff SET Username = ?, FirstName = ?, LastName = ?, " +
                 "Email = ?, ContactNumber = ?, Role = ?, StationID = ? " +
                 "WHERE StaffID = ?";
 
@@ -145,7 +145,7 @@ public class StaffDAO {
 
     //DELETE
     public boolean deleteStaff(int staffID) {
-        String sql = "DELETE FROM Staff WHERE StaffID = ?";
+        String sql = "DELETE FROM staff WHERE StaffID = ?";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -182,7 +182,7 @@ public class StaffDAO {
     // ── Called by AuthController.verifyCredentials() ──────────────
     public Staff findByUsername(String username) throws SQLException {
         String sql = "SELECT s.*, st.StationCode " +
-                "FROM Staff s " +
+                "FROM staff s " +
                 "LEFT JOIN station st ON s.StationID = st.StationID " +
                 "WHERE s.Username = ? LIMIT 1";
 
@@ -212,7 +212,7 @@ public class StaffDAO {
 
     // ── Called by AuthController.updatePassword() ─────────────────
     public boolean updatePassword(int staffId, String hashedPassword) throws SQLException {
-        String sql = "UPDATE Staff SET Password = ? WHERE StaffID = ?";
+        String sql = "UPDATE staff SET Password = ? WHERE StaffID = ?";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {

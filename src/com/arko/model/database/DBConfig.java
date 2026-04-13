@@ -17,17 +17,16 @@ public final class DBConfig {
 
     private DBConfig() {}
 
-    // ── Change only this line for LAN demo ────────────────────────────────────
-    public static final String HOST     = "localhost";
-    // ── LAN example: public static final String HOST = "192.168.137.1"; ──────
-
-    public static final int    PORT     = 3306;
+    public static final String HOST     = "mysql-25df71ba-project-4ark0.j.aivencloud.com";
+    public static final int    PORT     = 23021;
     public static final String DATABASE = "project_arko_db";
-    public static final String USER     = "root";
-    public static final String PASSWORD = "rootPwSql";
+    public static final String USER     = "avnadmin";
+    public static final String PASSWORD = "AVNS_jtujNQHkcGQTqFWnxO-";
 
     // Assembled URL — do not modify
     public static final String URL =
             "jdbc:mysql://" + HOST + ":" + PORT + "/" + DATABASE
-                    + "?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Manila";
+                    + "?sslMode=REQUIRED"
+                    + "&allowPublicKeyRetrieval=true"
+                    + "&serverTimezone=Asia/Manila";
 }
