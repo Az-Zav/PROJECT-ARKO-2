@@ -27,7 +27,11 @@ public class MainAppShell extends JFrame {
 
     public MainAppShell() {
         setTitle("PROJECT ARKO");
-        setSize(1400, 900);
+
+        ImageIcon icon = new ImageIcon(getClass().getResource("/com/resources/Icons/ARKO-logo.png"));
+        setIconImage(icon.getImage());
+
+        setSize(1500, 800);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 

@@ -29,20 +29,47 @@ public class LoginPanel extends JPanel {
         JPanel main = new JPanel(new GridLayout(1, 2));
         main.setOpaque(false);
 
-        // LEFT PANEL
-        JPanel left = new JPanel(null) {
-            Image logo = loadImage("/com/resources/Icons/profile.png", 250, 250);
+        // LEFT PANEL - Optimized for Aspect Ratio and Quality
+        JPanel left = new JPanel() {
+            // Load at a higher resolution for crispness, but we will scale dynamically
+            private Image logo = null;
+
+            {
+                java.net.URL url = getClass().getResource("/com/resources/Icons/ARKO-with_text.png");
+                if (url != null) logo = new ImageIcon(url).getImage();
+            }
 
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
                 if (logo != null) {
-                    int diameter = 250;
-                    int x = (getWidth() - diameter) / 2;
-                    int y = (getHeight() - diameter) / 2;
-                    Graphics2D g2 = (Graphics2D) g;
-                    g2.setClip(new java.awt.geom.Ellipse2D.Float(x, y, diameter, diameter));
-                    g2.drawImage(logo, x, y, diameter, diameter, this);
+                    Graphics2D g2 = (Graphics2D) g.create();
+
+                    // Quality Hints
+                    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                    g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+
+                    // --- CHANGE THIS VALUE ---
+                    // 0.9 means it will take up 90% of the left panel's width
+                    double scaleFactor = 0.8;
+
+                    int targetWidth = (int) (getWidth() * scaleFactor);
+                    double aspectRatio = (double) logo.getHeight(null) / logo.getWidth(null);
+                    int targetHeight = (int) (targetWidth * aspectRatio);
+
+                    // Ensure targetHeight doesn't exceed panel height
+                    if (targetHeight > getHeight() * 0.9) {
+                        targetHeight = (int) (getHeight() * 0.9);
+                        targetWidth = (int) (targetHeight / aspectRatio);
+                    }
+
+                    // Center the logo
+                    int x = (getWidth() - targetWidth) / 2;
+                    int y = (getHeight() - targetHeight) / 2;
+
+                    g2.drawImage(logo, x, y, targetWidth, targetHeight, null);
+
+                    g2.dispose();
                 }
             }
         };
@@ -52,7 +79,27 @@ public class LoginPanel extends JPanel {
         JPanel right = new JPanel(new GridBagLayout());
         right.setOpaque(false);
 
-        JPanel card = new JPanel(null);
+        // RIGHT PANEL - Card with Rounded Corners
+        JPanel card = new JPanel(null) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+                // Define the roundness (30 is a good balance for modern UI)
+                int arc = 30;
+
+                g2.setColor(getBackground());
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), arc, arc);
+                g2.dispose();
+            }
+        };
+
+// Crucial: Set opaque to false so the corners don't show a boxy background
+        card.setOpaque(false);
+        card.setPreferredSize(new Dimension(520, 480));
+        card.setBackground(UIStyler.BG_LIGHT);
         card.setPreferredSize(new Dimension(520, 480));
         card.setBackground(UIStyler.BG_LIGHT);
 

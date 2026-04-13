@@ -51,22 +51,22 @@ public class AdminSidebar extends JPanel {
         navPanel.setLayout(new BoxLayout(navPanel, BoxLayout.Y_AXIS));
 
         // BUG FIX: was calling setActive(btnReports) — should be setActive(btnAccount)
-        btnAccount = createButton("Profile", loadIcon("/com/resources/Icons/account.png"), () -> {
+        btnAccount = createButton("Profile", loadIcon("/com/resources/Icons/profile.png"), () -> {
             cardLayout.show(cardPanel, "ACCOUNT_SETTINGS");
             setActive(btnAccount);
         });
 
-        btnVessels = createButton("Manage Vessels", loadIcon("/com/resources/Icons/vessel.png"), () -> {
+        btnVessels = createButton("Manage Vessels", loadIcon("/com/resources/Icons/manageVessels.png"), () -> {
             cardLayout.show(cardPanel, "VESSELS");
             setActive(btnVessels);
         });
 
-        btnUsers = createButton("Manage Users", loadIcon("/com/resources/Icons/profile.png"), () -> {
+        btnUsers = createButton("Manage Users", loadIcon("/com/resources/Icons/manageUsers.png"), () -> {
             cardLayout.show(cardPanel, "USERS");
             setActive(btnUsers);
         });
 
-        btnStations = createButton("Manage Stations", loadIcon("/com/resources/Icons/station.png"), () -> {
+        btnStations = createButton("Manage Stations", loadIcon("/com/resources/Icons/manageStations.png"), () -> {
             cardLayout.show(cardPanel, "STATIONS");
             setActive(btnStations);
         });
