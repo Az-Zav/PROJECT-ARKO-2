@@ -11,68 +11,61 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
 /**
- * Modal dialog over the main app shell so changing password does not dispose the primary frame.
+ * Reusable change-password form; used inside {@link LoginPanel} (card)
  */
-public class ChangePasswordFrame extends JDialog {
+public class ChangePasswordPanel extends JPanel {
 
-    private final ChangePasswordController controller;
+    private final AuthController authController;
+    private final LoginController loginController;
+    private final LoginPanel loginPanel;
+    private final Runnable afterSuccessfulSave;
+
+    private ChangePasswordController controller;
 
     private JPasswordField newPasswordField;
     private JPasswordField confirmPasswordField;
     private JLabel errorLabel;
 
-    private boolean showNewPassword     = false;
-    private boolean showConfirmPassword = false;
+    private boolean showNewPassword;
+    private boolean showConfirmPassword;
 
-    public ChangePasswordFrame(Window owner,
-                               AuthController authController,
-                               LoginResult loginResult,
-                               LoginController loginController) {
-        super(owner, "A.R.K.O — Change Password", Dialog.ModalityType.APPLICATION_MODAL);
-        this.controller = new ChangePasswordController(
-                authController, loginResult, loginController);
-        initUI();
+    /**
+     * @param loginPanel          when non-null, a "Back to login" control is shown and routes to the login card
+     * @param afterSuccessfulSave run after {@link ChangePasswordController#routeAfterChange} (e.g. dialog {@code dispose})
+     */
+    public ChangePasswordPanel(AuthController authController,
+                               LoginController loginController,
+                               LoginPanel loginPanel,
+                               Runnable afterSuccessfulSave) {
+        this.authController = authController;
+        this.loginController = loginController;
+        this.loginPanel = loginPanel;
+        this.afterSuccessfulSave = afterSuccessfulSave != null ? afterSuccessfulSave : () -> { };
+        setOpaque(false);
+        buildUI();
     }
 
-    private void initUI() {
-        setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-        setSize(1400, 900);
-        setLocationRelativeTo(getOwner());
-        setResizable(true);
-        UIStyler.styleDialogShell(this);
-        getContentPane().setBackground(UIStyler.PRIMARY);
-        setLayout(new BorderLayout());
+    public void bind(LoginResult loginResult) {
+        this.controller = new ChangePasswordController(authController, loginResult, loginController);
+        clearForm();
+    }
 
-        JPanel main = new JPanel(new GridLayout(1, 2));
-        main.setOpaque(false);
+    public void clearForm() {
+        if (newPasswordField != null) {
+            newPasswordField.setText("");
+            confirmPasswordField.setText("");
+            errorLabel.setText(" ");
+        }
+    }
 
-        // --- LEFT: Branding ---
-        JPanel left = new JPanel(new BorderLayout());
-        left.setOpaque(false);
-
-        JLabel brand = new JLabel("A.R.K.O", SwingConstants.CENTER);
-        brand.setFont(new Font("Inter", Font.BOLD, 48));
-        brand.setForeground(Color.WHITE);
-
-        JLabel brandSub = new JLabel("Automated River-transit & Kommute Operations", SwingConstants.CENTER);
-        brandSub.setFont(new Font("Inter", Font.PLAIN, 14));
-        brandSub.setForeground(new Color(200, 190, 255));
-
-        JPanel brandStack = new JPanel();
-        brandStack.setOpaque(false);
-        brandStack.setLayout(new BoxLayout(brandStack, BoxLayout.Y_AXIS));
-        brandStack.add(Box.createVerticalGlue());
-        brand.setAlignmentX(Component.CENTER_ALIGNMENT);
-        brandSub.setAlignmentX(Component.CENTER_ALIGNMENT);
-        brandStack.add(brand);
-        brandStack.add(Box.createVerticalStrut(10));
-        brandStack.add(brandSub);
-        brandStack.add(Box.createVerticalGlue());
-        left.add(brandStack, BorderLayout.CENTER);
-
-        // --- RIGHT: Form card ---
-        JPanel right = new JPanel(new GridBagLayout());
-        right.setOpaque(false);
+    private void buildUI() {
+        setLayout(new GridBagLayout());
+        GridBagConstraints outer = new GridBagConstraints();
+        outer.gridx = 0;
+        outer.gridy = 0;
+        outer.weightx = 1.0;
+        outer.weighty = 1.0;
+        outer.anchor = GridBagConstraints.CENTER;
 
         JPanel card = new JPanel(new GridBagLayout());
         card.setPreferredSize(new Dimension(520, 540));
@@ -84,7 +77,6 @@ public class ChangePasswordFrame extends JDialog {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1.0;
 
-        // -- Heading --
         JLabel heading = new JLabel("Change Your Password");
         heading.setFont(new Font("Inter", Font.BOLD, 28));
         heading.setForeground(UIStyler.PRIMARY);
@@ -96,18 +88,16 @@ public class ChangePasswordFrame extends JDialog {
         subheading.setFont(new Font("Inter", Font.PLAIN, 13));
         subheading.setForeground(Color.GRAY);
         gbc.gridy = 1;
-        subheading.setPreferredSize(new Dimension(420, 20)); // Ensure it has height
+        subheading.setPreferredSize(new Dimension(420, 20));
         gbc.insets = new Insets(0, 0, 30, 0);
         card.add(subheading, gbc);
 
-        // Load icons
-        ImageIcon eyeOpen   = loadIcon("/com/resources/Icons/show.png");
+        ImageIcon eyeOpen = loadIcon("/com/resources/Icons/show.png");
         ImageIcon eyeClosed = loadIcon("/com/resources/Icons/hidden.png");
 
-        int fieldWidth  = 420;
+        int fieldWidth = 420;
         int fieldHeight = 40;
 
-        // -- New Password label --
         JLabel newPassLabel = new JLabel("New Password");
         UIStyler.styleFormLabel(newPassLabel);
         newPassLabel.setFont(new Font("Inter", Font.PLAIN, 16));
@@ -133,7 +123,6 @@ public class ChangePasswordFrame extends JDialog {
             eyeNew.setIcon(showNewPassword ? eyeOpen : eyeClosed);
         });
 
-        // FIXED: Using BorderLayout instead of null layout to prevent height collapse
         JPanel newPassRow = new JPanel(new BorderLayout(5, 0));
         newPassRow.setOpaque(false);
         newPassRow.add(newPasswordField, BorderLayout.CENTER);
@@ -143,7 +132,6 @@ public class ChangePasswordFrame extends JDialog {
         gbc.insets = new Insets(0, 0, 20, 0);
         card.add(newPassRow, gbc);
 
-        // -- Confirm Password label --
         JLabel confirmLabel = new JLabel("Confirm Password");
         UIStyler.styleFormLabel(confirmLabel);
         confirmLabel.setFont(new Font("Inter", Font.PLAIN, 16));
@@ -169,7 +157,6 @@ public class ChangePasswordFrame extends JDialog {
             eyeConfirm.setIcon(showConfirmPassword ? eyeOpen : eyeClosed);
         });
 
-        // FIXED: Using BorderLayout instead of null layout
         JPanel confirmPassRow = new JPanel(new BorderLayout(5, 0));
         confirmPassRow.setOpaque(false);
         confirmPassRow.add(confirmPasswordField, BorderLayout.CENTER);
@@ -179,7 +166,6 @@ public class ChangePasswordFrame extends JDialog {
         gbc.insets = new Insets(0, 0, 10, 0);
         card.add(confirmPassRow, gbc);
 
-        // -- Error label --
         errorLabel = new JLabel(" ");
         errorLabel.setFont(new Font("Inter", Font.PLAIN, 12));
         errorLabel.setForeground(new Color(200, 30, 30));
@@ -187,24 +173,39 @@ public class ChangePasswordFrame extends JDialog {
         gbc.insets = new Insets(0, 0, 20, 0);
         card.add(errorLabel, gbc);
 
-        // -- Save button --
         JButton saveBtn = new JButton("Save New Password");
         saveBtn.setPreferredSize(new Dimension(fieldWidth, 44));
         UIStyler.stylePrimaryButton(saveBtn);
         saveBtn.setFont(new Font("Inter", Font.BOLD, 15));
         saveBtn.addActionListener(e -> onSaveClicked());
         gbc.gridy = 7;
-        gbc.insets = new Insets(0, 0, 0, 0);
+        gbc.insets = new Insets(0, 0, 8, 0);
         card.add(saveBtn, gbc);
 
-        right.add(card);
-        main.add(left);
-        main.add(right);
-        add(main, BorderLayout.CENTER);
+        if (loginPanel != null) {
+            JButton backBtn = new JButton("Back to login");
+            backBtn.setPreferredSize(new Dimension(fieldWidth, 36));
+            backBtn.setFocusPainted(false);
+            backBtn.setFont(new Font("Inter", Font.PLAIN, 14));
+            backBtn.setForeground(UIStyler.PRIMARY);
+            backBtn.setBackground(UIStyler.BG_LIGHT);
+            backBtn.setBorder(BorderFactory.createLineBorder(UIStyler.PRIMARY, 1));
+            backBtn.addActionListener(e -> loginPanel.showLoginCard());
+            gbc.gridy = 8;
+            gbc.insets = new Insets(0, 0, 0, 0);
+            card.add(backBtn, gbc);
+        }
+
+        add(card, outer);
     }
 
     private void onSaveClicked() {
-        String newPass     = new String(newPasswordField.getPassword());
+        if (controller == null) {
+            errorLabel.setText("Session error. Please try logging in again.");
+            return;
+        }
+
+        String newPass = new String(newPasswordField.getPassword());
         String confirmPass = new String(confirmPasswordField.getPassword());
 
         String error = controller.validate(newPass, confirmPass);
@@ -219,8 +220,8 @@ public class ChangePasswordFrame extends JDialog {
             return;
         }
 
-        controller.routeAfterChange((JComponent) getContentPane());
-        dispose();
+        controller.routeAfterChange(this);
+        afterSuccessfulSave.run();
     }
 
     private ImageIcon loadIcon(String path) {
