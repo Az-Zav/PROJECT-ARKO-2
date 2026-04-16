@@ -64,7 +64,8 @@ public class ReportsDashboardPanel extends JPanel {
         new ReportsController(
                 filterPanel, timelinePanel, classificationPanel,
                 analyticsPanel, passengerDAO, stationDAO,
-                tripManifestController, innerCard, innerPanel);
+                tripManifestController, tripManifestPanel,
+                innerCard, innerPanel);
 
         // 5. Add to this panel
         add(innerPanel, BorderLayout.CENTER);

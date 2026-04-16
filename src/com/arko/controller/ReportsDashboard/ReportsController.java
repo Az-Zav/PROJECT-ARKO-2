@@ -8,6 +8,7 @@ import com.arko.view.ReportsDashboard.ClassificationPanel;
 import com.arko.view.ReportsDashboard.ReportsFilterPanel;
 import com.arko.view.ReportsDashboard.RidershipTimelinePanel;
 import com.arko.view.ReportsDashboard.StationAnalyticsPanel;
+import com.arko.view.ReportsDashboard.TripManifestPanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -37,6 +38,7 @@ public class ReportsController {
     private List<Station> cachedAdminStations = Collections.emptyList();
 
     private final TripManifestController tripManifestController;
+    private final TripManifestPanel      tripManifestPanel;
     private final CardLayout innerCard;
     private final JPanel innerPanel;
     private boolean                      manifestActive = false;
@@ -48,6 +50,7 @@ public class ReportsController {
                              PassengerDAO passengerDAO,
                              StationDAO stationDAO,
                              TripManifestController tripManifestController,
+                             TripManifestPanel tripManifestPanel,
                              CardLayout innerCard,
                              JPanel innerPanel) {
 
@@ -61,6 +64,7 @@ public class ReportsController {
         this.isAdmin      = SessionManager.getInstance().isCurrentStaffAdmin();
 
         this.tripManifestController = tripManifestController;
+        this.tripManifestPanel      = tripManifestPanel;
         this.innerCard              = innerCard;
         this.innerPanel             = innerPanel;
 
@@ -68,6 +72,25 @@ public class ReportsController {
         initFilterDefaults();
         initActionListeners();
         runFirstLoad();
+    }
+
+    private void showManifest() {
+        manifestActive = true;
+        innerCard.show(innerPanel, "MANIFEST");
+        filterPanel.btnToggleManifest.setText("CHARTS");
+
+        // Sync manifest filter to current chart filter state, then load
+        tripManifestController.syncFromReportsFilter(
+                SessionManager.getInstance().getReportsAnchorDate(),
+                SessionManager.getInstance().getReportsPeriodType(),
+                SessionManager.getInstance().getReportsStationId()
+        );
+    }
+
+    private void showCharts() {
+        manifestActive = false;
+        innerCard.show(innerPanel, "CHARTS");
+        filterPanel.btnToggleManifest.setText("MANIFEST");
     }
 
     /**
@@ -176,21 +199,14 @@ public class ReportsController {
 
         //MANIFEST TOGGLE LISTENER
         filterPanel.btnToggleManifest.addActionListener(e -> {
-            manifestActive = !manifestActive;
-            if (manifestActive) {
-                innerCard.show(innerPanel, "MANIFEST");
-                filterPanel.btnToggleManifest.setText("VIEW CHARTS");
-                // Sync manifest filter to current chart filter state, then load
-                tripManifestController.syncFromReportsFilter(
-                        SessionManager.getInstance().getReportsAnchorDate(),
-                        SessionManager.getInstance().getReportsPeriodType(),
-                        SessionManager.getInstance().getReportsStationId()
-                );
-            } else {
-                innerCard.show(innerPanel, "CHARTS");
-                filterPanel.btnToggleManifest.setText("VIEW TRIP MANIFEST");
-            }
+            if (manifestActive) showCharts();
+            else showManifest();
         });
+
+        // Trip Manifest "back" to charts
+        if (tripManifestPanel != null && tripManifestPanel.btnViewCharts != null) {
+            tripManifestPanel.btnViewCharts.addActionListener(e -> showCharts());
+        };
     }
 
     /**

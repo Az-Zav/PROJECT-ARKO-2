@@ -31,7 +31,7 @@ public class ReportsFilterPanel extends JPanel {
         lblTitle.setForeground(UIStyler.PRIMARY);
 
         btnExport = new JButton("EXPORT PDF");
-        btnToggleManifest = new JButton("VIEW TRIP MANIFEST");
+        btnToggleManifest = new JButton("MANIFEST");
         UIStyler.stylePrimaryButton(btnExport);
         UIStyler.styleSecondaryButton(btnToggleManifest);
 

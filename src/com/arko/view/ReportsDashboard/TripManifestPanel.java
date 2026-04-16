@@ -15,6 +15,7 @@ public class TripManifestPanel extends JPanel {
     public JComboBox<String> cmbPeriod;
     public JButton           btnBack;
     public JButton           btnForward;
+    public JButton           btnViewCharts;
     public JLabel            lblPeriodDisplay;
 
     // ── Trip summary table (top) ──────────────────────────────────────────────
@@ -50,10 +51,12 @@ public class TripManifestPanel extends JPanel {
         cmbPeriod  = new JComboBox<>(new String[]{"Daily", "Weekly", "Monthly", "Yearly"});
         btnBack    = new JButton("◀");
         btnForward = new JButton("▶");
+        btnViewCharts = new JButton("CHARTS");
         UIStyler.styleComboBox(cmbStation, UIStyler.BG_GREY, UIStyler.PRIMARY, UIStyler.PRIMARY_HOVER, UIStyler.TEXT_LIGHT);
         UIStyler.styleComboBox(cmbPeriod, UIStyler.BG_GREY, UIStyler.PRIMARY, UIStyler.PRIMARY_HOVER, UIStyler.TEXT_LIGHT);
         UIStyler.styleSecondaryButton(btnBack);
         UIStyler.styleSecondaryButton(btnForward);
+        UIStyler.styleSecondaryButton(btnViewCharts);
 
         lblPeriodDisplay = new JLabel("—");
         lblPeriodDisplay.setFont(new Font("Inter", Font.PLAIN, 12));
@@ -66,6 +69,7 @@ public class TripManifestPanel extends JPanel {
         bar.add(btnBack);
         bar.add(lblPeriodDisplay);
         bar.add(btnForward);
+        bar.add(btnViewCharts);
 
         return bar;
     }
