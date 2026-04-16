@@ -51,6 +51,6 @@ public final class DBConnection {
     public static void closeConnection() {
         // No persistent connection to close — each DAO closes its own connection
         // via try-with-resources. This method is intentionally empty.
-        System.out.println("🔌 All connections are self-managed. Nothing to close globally.");
+        System.out.println("All connections are self-managed. Nothing to close globally.");
     }
 }
