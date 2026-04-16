@@ -66,12 +66,6 @@ public class SessionManager {
         return (currentStaff != null) ? currentStaff.getFullName() : "Guest";
     }
 
-    /** @deprecated use {@link #getCurrentFullName()} */
-    @Deprecated
-    public String getCurrentUserName() {
-        return getCurrentFullName();
-    }
-
     public String getCurrentUserRole() {
         return (currentStaff != null) ? currentStaff.getRole() : "NONE";
     }
