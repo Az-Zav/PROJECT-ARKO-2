@@ -38,7 +38,7 @@ public class ReportsFilterPanel extends JPanel {
         JPanel actionsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
         actionsPanel.setOpaque(false);
         actionsPanel.add(btnToggleManifest);
-        actionsPanel.add(btnExport);
+        //actionsPanel.add(btnExport); removed for now
 
         topRow.add(lblTitle,      BorderLayout.WEST);
         topRow.add(actionsPanel,  BorderLayout.EAST);
